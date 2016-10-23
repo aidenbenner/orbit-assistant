@@ -7,29 +7,29 @@
 #include <FillPat.h>
 #include <string>
 void setup(){
-    Serial.begin(9600);
-    InitSensors();
+  Serial.begin(9600);
+  init_sensors();
 
-    OrbitOledInit();
-    OrbitOledClear();
-    OrbitOledClearBuffer();
-    OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
-    OrbitOledSetDrawMode(modOledSet);
+  OrbitOledInit();
+  OrbitOledClear();
+  OrbitOledClearBuffer();
+  OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
+  OrbitOledSetDrawMode(modOledSet);
 
 }
 
 
 void InitScreen(){
-    OrbitOledInit();
-    OrbitOledClear();
-    OrbitOledClearBuffer();
-    OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
-    OrbitOledSetDrawMode(modOledSet);
+  OrbitOledInit();
+  OrbitOledClear();
+  OrbitOledClearBuffer();
+  OrbitOledSetFillPattern(OrbitOledGetStdPattern(iptnSolid));
+  OrbitOledSetDrawMode(modOledSet);
 }
 
 void loop(){
-    PrintSensorTest();
-    delay(100);
+  print_sensor_test();
+  delay(100);
 } 
 
 
