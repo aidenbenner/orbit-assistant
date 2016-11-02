@@ -4,6 +4,20 @@ By Aiden Benner and Lawrence Pan
 
 ## Developer setup
 
+```bash
+$ # clone this repo
+$ git clone https://github.com/aidenbenner/spy-hunter
+$ # Install vim from your package manager
+$ sudo apt-get install vim
+$ # Install platformIO CLI
+$ sudo pip install -U platformio
+$ # Install the OLED driver
+$ cd spy-hunter
+$ ./install.sh
+$ # To upload your code to the board, do
+$ platformio run
+```
+
 ## Style
 
 ##### Code formatting
@@ -19,6 +33,4 @@ By Aiden Benner and Lawrence Pan
 * functions - verbs
 * variables - nouns
 
-### Proposal
-
-### Design
+## Design
