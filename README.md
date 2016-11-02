@@ -11,9 +11,9 @@ $ # Install vim from your package manager
 $ sudo apt-get install vim
 $ # Install platformIO CLI
 $ sudo pip install -U platformio
-$ # Install the OLED driver
+$ # Init project & install the OLED driver
 $ cd spy-hunter
-$ ./install.sh
+$ ./init.sh
 $ # To upload your code to the board, do
 $ platformio run
 ```
