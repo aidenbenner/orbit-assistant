@@ -4,8 +4,15 @@
 
 platformio init
 rm .travis.yml
+
 wget https://github.com/patricklam/se101-f16/raw/master/lab/resources/Orbit_Oled_Library.zip
 unzip Orbit_Oled_Library.zip
+
+if [[ -e lib ]]; then
+  rm -r lib
+fi
+
 mkdir -p lib/
+
 mv OrbitOled/ lib/
 rm Orbit_Oled_Library.zip
