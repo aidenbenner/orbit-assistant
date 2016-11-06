@@ -10,7 +10,7 @@ const static uint8_t ACCEL_I2C_ADR = 0x1D;
 const static uint8_t ACCEL_DATA_REG = 0x32;
 
 const double K_LOW_PASS = 0.2;
-void low_pass_filter (double last, double new_val)
+double low_pass_filter (double last, double new_val)
 {
   return K_LOW_PASS * last + (1.0 - K_LOW_PASS) * new_val;  
 }
@@ -30,7 +30,7 @@ void accel_init ()
   i2c_write_to_reg(ACCEL_DATA_REG, 0x2D, 1 << 3);
 }
 
-static accel_tick ()
+void accel_tick ()
 {
   uint8_t arr_size = 6;
   byte sensor_data[arr_size]; 
@@ -40,17 +40,17 @@ static accel_tick ()
 
 double get_x_accel ()
 {
-
+  return 0;
 }
 
 double get_y_accel ()
 {
-
+  return 0;
 }
 
 double get_z_accel ()
 {
-
+  return 0;
 }
 
 double accel_get_tilt ()
