@@ -1,4 +1,5 @@
 .pioenvs
+.swp
 .clang_complete
 .gcc-flags.json
 .piolibdeps

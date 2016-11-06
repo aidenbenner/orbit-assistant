@@ -1,6 +1,8 @@
-#include <wire.h>
+#include <Arduino.h>
+#include <Energia.h>
+#include <Wire.h>
 #include <math.h>
-#include "i2c_comm.ino"
+#include "i2c_comm.h"
 
 #define NUM_AXIS 3
 
@@ -8,16 +10,16 @@ const static uint8_t ACCEL_I2C_ADR = 0x1D;
 const static uint8_t ACCEL_DATA_REG = 0x32;
 
 const double K_LOW_PASS = 0.2;
-void low_pass_filter(double last, double new_val)
+void low_pass_filter (double last, double new_val)
 {
   return K_LOW_PASS * last + (1.0 - K_LOW_PASS) * new_val;  
 }
 
-
 static double accel_last[NUM_AXIS];
 static double accel_curr[NUM_AXIS];
 
-void accel_init(){
+void accel_init ()
+{
   for (int i = 0; i<NUM_AXIS; i++)
   {
     accel_last[i] = 0;
@@ -36,17 +38,17 @@ static accel_tick ()
   
 }
 
-static double get_x_accel ()
+double get_x_accel ()
 {
 
 }
 
-static double get_y_accel ()
+double get_y_accel ()
 {
 
 }
 
-static double get_z_accel ()
+double get_z_accel ()
 {
 
 }
