@@ -2,12 +2,16 @@
 #include <Energia.h>
 #include <Wire.h>
 #include <math.h>
-#include "i2c_comm.h"
+#include "sensors/i2c_comm.h"
+#include "sensors/accel.h"
 
 #define NUM_AXIS 3
 
-const static uint8_t ACCEL_I2C_ADR = 0x1D;
-const static uint8_t ACCEL_DATA_REG = 0x32;
+const static int ACCEL_I2C_ADR = 0x1D;
+const static int ACCEL_DATA_REG = 0x32;
+//0x3A = write, 0x3B = read
+//max poll is 800Hz for 400Khz i2c and 200Hz fo 100Khz i2c
+//operating above = more noise and missed samples 
 
 const double K_LOW_PASS = 0.2;
 double low_pass_filter (double last, double new_val)
@@ -20,12 +24,13 @@ static double accel_curr[NUM_AXIS];
 
 void accel_init ()
 {
+  //hangs
   for (int i = 0; i<NUM_AXIS; i++)
   {
     accel_last[i] = 0;
     accel_curr[i] = 0;
   }
-  //ROLLEN MAGIC !?!? I think this sets the accel to stream mode? 
+  Serial.println("hit");
   i2c_write_to_reg(ACCEL_DATA_REG, 0x31, 1);
   i2c_write_to_reg(ACCEL_DATA_REG, 0x2D, 1 << 3);
 }
@@ -33,9 +38,15 @@ void accel_init ()
 void accel_tick ()
 {
   uint8_t arr_size = 6;
-  byte sensor_data[arr_size]; 
-  i2c_read_from_reg (ACCEL_I2C_ADR, ACCEL_DATA_REG,sensor_data,arr_size);
-  
+  uint32_t sensor_data[arr_size]; 
+ 
+  Serial.println("trying read");
+  i2c_read_from_reg (ACCEL_I2C_ADR, 
+      ACCEL_DATA_REG,
+      sensor_data,
+      arr_size); 
+
+  Serial.println(sensor_data[0]);
 }
 
 double get_x_accel ()

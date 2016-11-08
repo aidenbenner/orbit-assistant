@@ -2,6 +2,7 @@
 #define ACCEL_H
 
 void accel_init ();
+void accel_tick ();
 double get_x_accel ();
 double get_y_accel ();
 double get_z_accel ();

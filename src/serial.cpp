@@ -9,7 +9,12 @@ void init_serial ()
 
 void serial_test ()
 {
-  Serial.println("hello world");
+  Serial.println("hello world\n");
+}
+
+void print_accel () 
+{
+
 }
 
 
