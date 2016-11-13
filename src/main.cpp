@@ -1,27 +1,23 @@
 #include <Energia.h>
 #include <Arduino.h>
 #include <OrbitOled.h>
+#include <OrbitOledChar.h>
 #include <OrbitOledGrph.h>
 #include <FillPat.h>
 #include "oled.h"
 #include "serial.h"
 #include "sensors/accel.h"
+#include "sensors/Wire_Util.h"
 
 void setup()
 {
-  init_serial ();
-  Serial.println("running");
-  // initialize LED digital pin as an output.
-  pinMode (BLUE_LED, OUTPUT);
-  init_oled ();
-   accel_init ();
+  WireInit();
+  Serial.begin(9600);
+  accel_init ();
 }
 
 void loop()
 {
-  Serial.println("loop");
-  // accel_tick ();
-  serial_test ();
-  draw_random_shit ();
-  OrbitOledUpdate ();
+  accel_tick ();
 }
+

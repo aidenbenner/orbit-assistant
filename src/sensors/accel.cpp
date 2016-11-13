@@ -2,73 +2,87 @@
 #include <Energia.h>
 #include <Wire.h>
 #include <math.h>
-#include "sensors/i2c_comm.h"
 #include "sensors/accel.h"
+#include "sensors/Wire_Util.h"
 
 #define NUM_AXIS 3
 
-const static int ACCEL_I2C_ADR = 0x1D;
-const static int ACCEL_DATA_REG = 0x32;
-//0x3A = write, 0x3B = read
-//max poll is 800Hz for 400Khz i2c and 200Hz fo 100Khz i2c
-//operating above = more noise and missed samples 
+//from RPS demo 
+void WireRequestArray(int address, uint8_t* buffer, uint8_t amount);
+void WireWriteRegister(int address, uint8_t reg, uint8_t value);
+void WireWriteByte(int address, uint8_t value);
 
-const double K_LOW_PASS = 0.2;
-double low_pass_filter (double last, double new_val)
+static float const    SensorMaximumReading= 512.0;
+static float const    SensorMaximumAccel  = 9.81 * 4.0;
+static uint8_t const  SensorAccelerometer = 0x1D;
+
+float raw_accel_val[NUM_AXIS];
+float filtered_accel_val[NUM_AXIS];
+
+void accel_init()
 {
-  return K_LOW_PASS * last + (1.0 - K_LOW_PASS) * new_val;  
-}
-
-static double accel_last[NUM_AXIS];
-static double accel_curr[NUM_AXIS];
-
-void accel_init ()
-{
-  //hangs
-  for (int i = 0; i<NUM_AXIS; i++)
+  for(int i = 0; i < NUM_AXIS; i++)
   {
-    accel_last[i] = 0;
-    accel_curr[i] = 0;
+    filtered_accel_val[i] = 0;
+    raw_accel_val[i] = 0;
   }
-  Serial.println("hit");
-  i2c_write_to_reg(ACCEL_DATA_REG, 0x31, 1);
-  i2c_write_to_reg(ACCEL_DATA_REG, 0x2D, 1 << 3);
+  WireWriteRegister(SensorAccelerometer, 0x31, 1);
+  WireWriteRegister(SensorAccelerometer, 0x2D, 1 << 3);
 }
+
+float K_LOW_PASS_GAIN = 0.01;
+static float low_pass (float new_val, float last_val)
+{
+  return last_val * (1.0 - K_LOW_PASS_GAIN) + new_val * K_LOW_PASS_GAIN;
+}
+
 
 void accel_tick ()
 {
-  uint8_t arr_size = 6;
-  uint32_t sensor_data[arr_size]; 
- 
-  Serial.println("trying read");
-  i2c_read_from_reg (ACCEL_I2C_ADR, 
-      ACCEL_DATA_REG,
-      sensor_data,
-      arr_size); 
+  size_t const DataLength = 6;
+  uint32_t data[DataLength] = { 0 };
+  
+  WireWriteByte(SensorAccelerometer, 0x32);
+  WireRequestArray(SensorAccelerometer, data, DataLength);
 
-  Serial.println(sensor_data[0]);
+  uint16_t xi = (data[1] << 8) | data[0];
+  uint16_t yi = (data[3] << 8) | data[2];
+  uint16_t zi = (data[5] << 8) | data[4];
+
+
+  raw_accel_val[0] = *(int16_t*)(&xi) / SensorMaximumReading * SensorMaximumAccel; //X 
+  raw_accel_val[1] = *(int16_t*)(&yi) / SensorMaximumReading * SensorMaximumAccel; //Y
+  raw_accel_val[2] = *(int16_t*)(&zi) / SensorMaximumReading * SensorMaximumAccel; //Z
+
+  //TODO need to add dtime to make filtering consistent
+  for(int i = 0; i<NUM_AXIS; i++)
+    filtered_accel_val[i] = low_pass(raw_accel_val[i], filtered_accel_val[i]);
+  
+  //testing
+  Serial.println(accel_get_tilt());
 }
 
 double get_x_accel ()
 {
-  return 0;
+  return filtered_accel_val[0];
 }
 
 double get_y_accel ()
 {
-  return 0;
+  return filtered_accel_val[1];
 }
 
 double get_z_accel ()
 {
-  return 0;
+  return filtered_accel_val[2];
 }
 
 double accel_get_tilt ()
 {
   double x_acc = get_x_accel ();
   double y_acc = get_y_accel ();
-  return atan2 (x_acc,y_acc);
+  double z_acc = get_y_accel ();
+  return atan2 (x_acc,y_acc) * 180.0 / PI;  
 }
 
 

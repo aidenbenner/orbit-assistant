@@ -4,6 +4,7 @@
 
 static TwoWire boosted_wire(0); 
 
+
 void i2c_write (uint8_t i2c_add, uint8_t *data, uint8_t length)
 {
   boosted_wire.beginTransmission (i2c_add);  
@@ -20,15 +21,17 @@ void i2c_write_to_reg (int i2c_add, uint8_t reg,  uint8_t *data,
   Serial.println(" writing 1");
   boosted_wire.beginTransmission (i2c_add);  
   boosted_wire.write (reg);
+  boosted_wire.endTransmission ();
   Serial.println(" writing ");
   for (int i = 0; i < length; i++)
   {
+    boosted_wire.beginTransmission (i2c_add);  
     boosted_wire.write (data[i]);
+  boosted_wire.endTransmission ();
     Serial.println("writing ");
     Serial.println(i);
   }
   Serial.println(" ending ");
-  boosted_wire.endTransmission ();
   Serial.println(" done ");
 }
 
