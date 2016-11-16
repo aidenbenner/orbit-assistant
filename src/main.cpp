@@ -9,15 +9,25 @@
 #include "sensors/accel.h"
 #include "sensors/Wire_Util.h"
 
-void setup()
-{
-  WireInit();
-  Serial.begin(9600);
+enum GameState {
+  TITLE, INGAME, HIGHSCORE
+};
+
+void init_device (){
+  WireInit ();
+  serial_init ();
+  oled_init ();
   accel_init ();
 }
 
-void loop()
+void setup ()
 {
+  init_device ();
+}
+
+void loop ()
+{
+  display_title ();
   accel_tick ();
 }
 

@@ -2,9 +2,10 @@
 #include <OrbitOledChar.h>
 #include <OrbitOledGrph.h>
 #include <FillPat.h>
+#include <Energia.h>
 #include "oled.h"
 
-void init_oled (void)
+void oled_init ()
 {
   OrbitOledInit ();
   OrbitOledClear ();
@@ -13,7 +14,7 @@ void init_oled (void)
   OrbitOledSetDrawMode (modOledSet);
 }
 
-void draw_random_shit (void)
+void draw_test (void)
 {
   OrbitOledClear ();
   OrbitOledSetCursor (0, 3);
@@ -29,3 +30,22 @@ void draw_random_shit (void)
   };
   OrbitOledPutBmp (10, 1, ground);
 }
+
+
+void display_title (void){
+  Serial.write("hit");
+  char ground[] = {
+    0xFF,
+    0xFF,
+    0xFF,
+    0xFF,
+    0xFF,
+    0xFF,
+    0xFF,
+    0xFF
+  };
+  OrbitOledClear ();
+  OrbitOledSetCursor (0, 3);
+  OrbitOledPutBmp (10, 1, ground);
+}
+

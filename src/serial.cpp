@@ -2,7 +2,7 @@
 #include <Energia.h>
 #include "sensors/accel.h"
 
-void init_serial ()
+void serial_init ()
 {
   Serial.begin (9600);
 }
