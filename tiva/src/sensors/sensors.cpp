@@ -16,6 +16,8 @@ static uint32_t P_LEDS[] = { PC_6, PC_7, PD_6, PB_5};
 static uint32_t P_BUTTONS[] = { PE_0, PD_2 }; 
 static uint32_t P_POT = PE_3;
 
+static const int POT_MAX = 4095;
+static const int POT_MIN = 0;
 
 void ghetto_assert(bool condition);
 
@@ -48,6 +50,12 @@ bool read_switch (int swit)
 int read_pot ()
 {
   return analogRead(P_POT);
+}
+
+double read_pot_percent ()
+{
+  //going to assume pot is linear 
+  return ((double)POT_MIN + read_pot()) / (double)POT_MAX;
 }
 
 void set_led (int port, int val)

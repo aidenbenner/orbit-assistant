@@ -4,11 +4,11 @@
 #include <OrbitOledChar.h>
 #include <OrbitOledGrph.h>
 #include <FillPat.h>
+#include "sensors/sensors.h"
+#include "sensors/accel.h"
 #include "oled.h"
 #include "serial.h"
-#include "accel.h"
 #include "Wire_Util.h"
-#include "sensors.h"
 #include "menu.h"
 
 #define print(x) Serial.println("x")
@@ -19,7 +19,7 @@ void device_init (){
   oled_init ();
   accel_init ();
   init_sensors (); 
-  set_all_led(255);
+  set_all_led (255);
 }
 
 void setup ()
@@ -29,7 +29,7 @@ void setup ()
 
 void loop ()
 {
-  display_long_string (); 
+  display_test (); 
   delay(50);
 }
 

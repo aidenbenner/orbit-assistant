@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <Arduino.h>
 #include <Energia.h>
-#include "sensors/Wire_Util.h"
+#include "Wire_Util.h"
 
 /**
  * You need to use your own Instance of the TwoWire Object (instead of the standard `Wire`)

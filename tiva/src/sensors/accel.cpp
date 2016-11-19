@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include <math.h>
 #include "sensors/accel.h"
-#include "sensors/Wire_Util.h"
+#include "Wire_Util.h"
 
 #define NUM_AXIS 3
 
