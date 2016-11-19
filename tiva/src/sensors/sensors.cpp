@@ -24,10 +24,7 @@ void ghetto_assert(bool condition);
 void init_sensors ()
 {
   for(int i = 0; i < NUM_SWITCHES; i++) 
-  {   
     pinMode(P_SWITCHES[i], INPUT);
-    Serial.println("Sensors"); 
-  }
 
   for(int i = 0; i < NUM_BUTTONS; i++)
     pinMode(P_BUTTONS[i], INPUT);
