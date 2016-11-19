@@ -8,26 +8,28 @@
 #include "serial.h"
 #include "sensors/accel.h"
 #include "sensors/Wire_Util.h"
+#include "sensors.h"
+#include "menu.h"
 
-enum GameState {
-  TITLE, INGAME, HIGHSCORE
-};
+#define print(x) Serial.println("x")
 
-void init_device (){
-  WireInit ();
+void device_init (){
   serial_init ();
+  WireInit ();
   oled_init ();
   accel_init ();
+  init_sensors (); 
+  set_all_led(255);
 }
 
 void setup ()
 {
-  init_device ();
+  device_init ();
 }
 
 void loop ()
 {
-  display_title ();
-  accel_tick ();
+  display_menu (); 
+  delay(50);
 }
 

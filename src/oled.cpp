@@ -12,25 +12,16 @@ void oled_init ()
   OrbitOledClearBuffer ();
   OrbitOledSetFillPattern (OrbitOledGetStdPattern (iptnSolid));
   OrbitOledSetDrawMode (modOledSet);
+
 }
 
 void draw_test (void)
 {
   OrbitOledClear ();
   OrbitOledSetCursor (0, 3);
-  char ground[] = {
-    0xFF,
-    0xFF,
-    0xFF,
-    0xFF,
-    0xFF,
-    0xFF,
-    0xFF,
-    0xFF
-  };
-  OrbitOledPutBmp (10, 1, ground);
+  OrbitOledFillRect(14, 16);
+  Serial.println("hit");
 }
-
 
 void display_title (void){
   Serial.write("hit");
@@ -47,5 +38,8 @@ void display_title (void){
   OrbitOledClear ();
   OrbitOledSetCursor (0, 3);
   OrbitOledPutBmp (10, 1, ground);
+}
+
+void oled_marquee () {
 }
 
