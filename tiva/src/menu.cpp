@@ -37,7 +37,7 @@ char test_string[] = "1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20,21,22,
 
 const int CHARS_PER_LINE = 16; 
 const int CHAR_HEIGHT = 7; 
-const double CHAR_WIDTH = 8.25; 
+const double CHAR_WIDTH = 8; 
 const int LINE_HEIGHT = 10; 
 
 const int LINE_TOP_OFFSET = 3; 
@@ -147,15 +147,22 @@ void orbit_display_linewrap (char * input)
 }
 
 
+const int insert_time_thresh = 200;  //ms
 void get_user_input ()
 {
   //first line used as input 
   //2nd and third for selection
   orbit_moveto_line (2); 
   int curr_selection = 0; 
-  int max_selection = 24; 
+  int max_selection = 26; 
+  char user_input[CHARS_PER_LINE] = {' '}; 
+  user_input[CHARS_PER_LINE - 1] = '\0';
+  int input_index = 0; 
+  long last_insert_time = millis(); 
   while(true){
     OrbitOledClear ();
+    orbit_moveto_line (1); 
+    OrbitOledDrawString(user_input);
     orbit_moveto_line (2); 
     send_line_to_buffer(selection_string,1);
     OrbitOledDrawString(line_buffer);
@@ -166,11 +173,31 @@ void get_user_input ()
     //draw box around selected
     curr_selection = round(max_selection * read_pot_percent());
     int curr_col = curr_selection * CHAR_WIDTH;
-    curr_col = curr_col % SCREEN_LENGTH;
+    curr_col = fmod(curr_col , (CHAR_WIDTH * CHARS_PER_LINE));
     int curr_line = 2 + curr_selection / CHARS_PER_LINE;
     int xCord1 = curr_col;
     int yCord1 = get_line_y(curr_line);
 
+    OrbitOledMoveTo (xCord1 - 1, yCord1 - 1);
+    OrbitOledDrawRect(xCord1 + CHAR_WIDTH ,yCord1 + CHAR_HEIGHT + 1);
+    OrbitOledUpdate ();
+    if(read_button(1)){
+      if( millis() - last_insert_time > insert_time_thresh ) 
+      { 
+        user_input[input_index] = selection_string[curr_selection];  
+        input_index++; 
+        last_insert_time = millis(); 
+      }  
+    }
+    if(read_button(0)){
+      if( millis() - last_insert_time > insert_time_thresh ) 
+      { 
+        if(input_index > 0)
+          user_input[--input_index] = ' ';  
+        last_insert_time = millis() - 100; 
+      }  
+    }
+    delay(50);
     /**
     Serial.print("Curr selection | ");
     Serial.print(curr_selection);
@@ -182,10 +209,6 @@ void get_user_input ()
     Serial.print(curr_col);
     Serial.print(" curr_line | ");
     Serial.println(curr_line); **/
-    OrbitOledMoveTo (xCord1 - 1, yCord1 - 1);
-    OrbitOledDrawRect(xCord1 + CHAR_WIDTH + 1,yCord1 + CHAR_HEIGHT + 1);
-    OrbitOledUpdate ();
-    delay(50);
   }
 }
 
