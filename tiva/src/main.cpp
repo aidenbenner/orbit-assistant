@@ -13,13 +13,15 @@
 
 #define print(x) Serial.println("x")
 
-void device_init (){
+void device_init ()
+{
   serial_init ();
   WireInit ();
   oled_init ();
   accel_init ();
   init_sensors (); 
-  set_all_led (255);
+  led_left_right (255, true);
+  led_left_right (255, false);
 }
 
 void setup ()

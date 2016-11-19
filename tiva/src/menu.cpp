@@ -13,6 +13,7 @@
 
 //pre declarations 
 void orbit_moveto_line (int line); 
+void display_menu ();
 int get_line_y (int line);
 
 extern int xchOledMax; // defined in OrbitOled.c
@@ -35,6 +36,8 @@ char fill[] = {
 };
 
 char test_string[] = "1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60 the quick brown fox jumps over the lazy dog ";
+
+
 
 const int CHARS_PER_LINE = 16; 
 const int CHAR_HEIGHT = 7; 
@@ -71,6 +74,8 @@ char * send_line_to_buffer (char * input, int line)
   return line_buffer; 
 }
 
+
+
 const int PAGE_LINE_SHIFT = 1;
 void print_string_page ( char * input, int page){
   int length = strlen(input);
@@ -101,8 +106,12 @@ void paginate_view_string (char * input) {
   int input_time = millis();
   print_string_page(input, curr_page); 
   double line_prog = curr_page / max_page; 
+  int init_exit_switch = read_switch(0);
   while(true)
   {
+    if(read_switch(0) != init_exit_switch){
+      return;
+    }
    if(read_button(1))
    {
      if(millis() - input_time > INPUT_TIME_THRESH)
@@ -238,17 +247,17 @@ void get_user_input ()
 
     if(!isUpper){ 
       orbit_moveto_line (2); 
-      send_line_to_buffer(selection_string,1);
+      send_line_to_buffer(selection_string,0);
       OrbitOledDrawString(line_buffer);
       orbit_moveto_line (3); 
-      send_line_to_buffer(selection_string,2);
+      send_line_to_buffer(selection_string,1);
       OrbitOledDrawString(line_buffer);
     } else {
       orbit_moveto_line (2); 
-      send_line_to_buffer(upper_selection_string,1);
+      send_line_to_buffer(upper_selection_string,0);
       OrbitOledDrawString(line_buffer);
       orbit_moveto_line (3); 
-      send_line_to_buffer(upper_selection_string,2);
+      send_line_to_buffer(upper_selection_string,1);
       OrbitOledDrawString(line_buffer);
     }
 
@@ -335,7 +344,7 @@ void orbit_display_centered_string (char * str)
 
 void display_user_prompt (char * display_string)
 {
-  OrbitOledClear ();
+  OrbitOledClearBuffer ();
   Serial.println("hit");
   char confirmation[] = "okay (btn 1)"; 
   OrbitOledMoveTo(0,LINE_2_Y); 
@@ -353,18 +362,25 @@ void display_user_prompt (char * display_string)
   }
 }
 
+char time_buffer[] = "12:55";
+char weather_buffer[] = "12 C";
 void display_test ()
 {
+  OrbitOledClearBuffer ();
+  OrbitOledMoveTo(0,-5);
+  OrbitOledDrawString (time_buffer);
+  OrbitOledUpdate(); 
+  delay(50000);
+
   paginate_view_string (test_string);
   char prompt[] = "Hi..";
   display_user_prompt(prompt);
   char prompt2[] = "Enter your name";
   display_user_prompt(prompt2);
   get_user_input (); 
+  display_menu ();
 }
 
-char time_buffer[] = "12:55";
-char weather_buffer[] = "12 C";
 
 void orbit_moveto_line (int line)
 {
@@ -399,7 +415,7 @@ void display_menu ()
 {
   for(int i = 0; i < 30; i++)
   { 
-    OrbitOledClear ();
+    OrbitOledClearBuffer ();
     orbit_moveto_line(1);
     OrbitOledDrawString (time_buffer);
     orbit_moveto_line(2);
@@ -408,9 +424,5 @@ void display_menu ()
     delay (200);
   }  
 } 
-
-
-
-
 
 
