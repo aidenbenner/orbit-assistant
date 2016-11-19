@@ -6,8 +6,8 @@
 #include <FillPat.h>
 #include "oled.h"
 #include "serial.h"
-#include "sensors/accel.h"
-#include "sensors/Wire_Util.h"
+#include "accel.h"
+#include "Wire_Util.h"
 #include "sensors.h"
 #include "menu.h"
 
@@ -29,7 +29,7 @@ void setup ()
 
 void loop ()
 {
-  display_menu (); 
+  display_long_string (); 
   delay(50);
 }
 
