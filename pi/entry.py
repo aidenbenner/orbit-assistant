@@ -1,2 +1,4 @@
-from c3po import server
-server.app.run(debug=True)
+from c3po import SerialManager, config
+
+sm = SerialManager('Serial', config.valid_events)
+sm.start()
