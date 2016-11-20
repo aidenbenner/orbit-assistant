@@ -25,6 +25,7 @@ extern int ychOledMax; // defined in OrbitOled.c
 const int SCREEN_LENGTH = 132;
 const int SCREEN_HEIGHT = 32;
 const int INPUT_TIME_THRESH = 200;  //ms
+const int DELAY_MS = 50;  //ms
 
 const double CHAR_HEIGHT = 7; 
 const double CHAR_WIDTH = 8; 
@@ -52,24 +53,6 @@ char line_buffer [CHARS_PER_LINE + 1] = " ";
 char user_name[] = "Lawrence";
 char * greetings[] = {"Good ", "evening "};
 
-typedef struct Date{
-  int minute;
-  int hour;
-  int second; 
-  int day; 
-  int month;
-  int year; 
-  long init_time; 
-} Date;
-Date curr_date;
-
-typedef struct Weather{
-  int temp;
-  double humidity;
-  double precipitation;
-  long init_time; 
-} Weather;
-Weather curr_weather;
 
 char test_string[] = "1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60 the quick brown fox jumps over the lazy dog ";
 
@@ -83,7 +66,8 @@ void menu_init ()
   curr_date.year = 2016;
 
   curr_weather.temp = 10;
-  curr_wewather.humidity = 80;
+  curr_weather.humidity = 80;
+  curr_weather.precip = 80;
   //get the user's name
 }
 
@@ -364,6 +348,32 @@ void orbit_display_centered_string (char * str)
   OrbitOledDrawString (output);
 }
 
+const int MS_PER_CHAR = 100; 
+void marquee_text (char * input, int step)
+{
+  int length = strlen(input); 
+  int time_ms = length * MS_PER_CHAR;
+  for(int k = 0; k<100; k++){
+    for(int i = CHARS_PER_LINE; i>=0; i--)
+    {
+      OrbitOledClearBuffer ();
+      OrbitOledMoveTo (i * CHAR_WIDTH,0); 
+      OrbitOledDrawString(input);
+      OrbitOledUpdate (); 
+      delay(time_ms / length);
+    }
+    //come back in the other side.. draw 1 character at a time
+    for(int i = 0; i<length - 1; i++)
+    {
+      OrbitOledClearBuffer ();
+      OrbitOledMoveTo (0,0); 
+      OrbitOledDrawString(input + i);
+      OrbitOledUpdate (); 
+      delay(time_ms/length);
+    }
+  }
+}
+
 void display_user_prompt (char * display_string)
 {
   OrbitOledClearBuffer ();
@@ -438,6 +448,13 @@ void update_time ()
   //TODO months + years 
 }
 
+const int NUM_MENUS = 3; 
+int get_menu_selection () 
+{
+  double pot = read_pot_percent(); 
+  return round(pot * NUM_MENUS);
+}
+
 void fill_time_buffer () 
 {
   update_time(); 
@@ -455,62 +472,130 @@ void fill_time_buffer ()
   }
 }
 
+char date_buffer[10]; 
+void fill_date_buffer () 
+{
+  update_time(); 
+  date_buffer[0] = curr_date.day / 10;  
+  date_buffer[1] = curr_date.day % 10;  
+  date_buffer[2] = '/';  
+  date_buffer[3] = curr_date.month/ 10;  
+  date_buffer[4] = curr_date.month % 10;  
+  date_buffer[5] = '/';  
+  date_buffer[6] = curr_date.year / 1000 % 10;  
+  date_buffer[7] = curr_date.year / 100 % 10;  
+  date_buffer[8] = curr_date.year / 10 % 10;  
+  date_buffer[9] = curr_date.year % 10;  
+  for(int i = 0; i<=9; i++){
+    if(i == 2 || i == 5) continue;
+    date_buffer[i] += 48;
+  }
+
+}
+
+long last_page_time = millis(); 
+//returns if the user clicks up or down to click
+int get_page_action (int curr, int max)
+{
+  if(read_button(1))
+  {
+    if(millis() - last_page_time > INPUT_TIME_THRESH)
+    {
+      if(curr < max) ++curr;
+    }
+  }
+  if(read_button(0))
+  {
+    if(millis() - last_page_time > INPUT_TIME_THRESH)
+    {
+      if(curr > 0) --curr;
+    }
+  }
+  return curr; 
+}
+
+
 void intro_page_tick () 
 {
-  fill_time_buffer();
-  OrbitOledClearBuffer ();
-  orbit_moveto_line(1);
-  orbit_display_centered_string (time_buffer);
-  orbit_moveto_line(2);
-  if(curr_date.hour < 12)
-    orbit_display_centered_string ("Good Morning ");
-  else if(curr_date.hour < 18)
-    orbit_display_centered_string ("Good Afternoon ");
-  else 
-    orbit_display_centered_string ("Good Evening ");
-  orbit_moveto_line(3);
-  orbit_display_centered_string (user_name);
-  OrbitOledUpdate ();
-  delay (10);
+  int init_selection = get_menu_selection();
+  int scroll = 0; 
+  while(init_selection == get_menu_selection()){
+    fill_time_buffer();
+    OrbitOledClearBuffer ();
+    if(scroll < 1){
+      orbit_moveto_line(1 - scroll);
+      orbit_display_centered_string (time_buffer);
+    }
+    orbit_moveto_line(2 - scroll);
+    if(curr_date.hour < 12)
+      orbit_display_centered_string ("Good Morning ");
+    else if(curr_date.hour < 18)
+      orbit_display_centered_string ("Good Afternoon ");
+    else 
+      orbit_display_centered_string ("Good Evening ");
+    orbit_moveto_line (3 - scroll);
+    orbit_display_centered_string (user_name);
+    if(scroll == 1){
+      fill_date_buffer (); 
+      orbit_moveto_line (4 - scroll);
+      orbit_display_centered_string (date_buffer);
+    }
+    OrbitOledUpdate ();
+
+    scroll = get_page_action(scroll,1); 
+    delay (10);
+  }
 }
 
-void weather_page_tick () 
-{
-  OrbitOledClearBuffer ();
-  orbit_moveto_line(1);
-  orbit_display_centered_string ("Calendar ");
-  OrbitOledUpdate ();
-}
-
-char weather_buffer[24] = "10C and snowy"; 
-void notifications_page_tick () 
+void calendar_page_tick () 
 {
   OrbitOledClearBuffer ();
   orbit_moveto_line(1);
   orbit_display_centered_string ("Weather ");
-  orbit_moveto_line(2);
-  orbit_display_centered_string (weather_buffer);
   OrbitOledUpdate ();
+}
+
+char weather_buffer[24] = "10C and snowy"; 
+
+void fill_weather_buffer () 
+{
+
+}
+
+
+void weather_page_tick () 
+{
+  int init_selection = get_menu_selection();
+  while(init_selection == get_menu_selection()){
+    double init_pot = 0; 
+    OrbitOledClearBuffer ();
+    orbit_moveto_line(1);
+    orbit_display_centered_string ("Weather ");
+    orbit_moveto_line(2);
+    orbit_display_centered_string (weather_buffer);
+    orbit_moveto_line(3);
+    OrbitOledUpdate ();
+  }  
 }
 
 long last_switch_time = millis();
 int curr_menu = 0; 
+
 void display_menu ()
 {
-  int menu_max = 2; 
-  switch(curr_menu){
+  switch(curr_menu)
+  {
     case 0:
       intro_page_tick ();
       break;
     case 1:
-      weather_page_tick ();
+      calendar_page_tick ();
       break;
     case 2:
-      notifications_page_tick ();
+      weather_page_tick ();
       break;
   }
-  double pot = read_pot_percent(); 
-  curr_menu = round(pot * menu_max);
+  curr_menu = get_menu_selection();
 } 
 
 

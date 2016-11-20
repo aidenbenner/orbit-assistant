@@ -28,6 +28,9 @@ void device_init ()
 void setup ()
 {
   device_init ();
+  Serial.println ("Get Data");
+  Serial.println ("test 1,2,3");
+  delay(5000);
 }
 
 void loop ()
