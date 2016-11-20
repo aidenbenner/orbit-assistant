@@ -63,6 +63,14 @@ typedef struct Date{
 } Date;
 Date curr_date;
 
+typedef struct Weather{
+  int temp;
+  double humidity;
+  double precipitation;
+  long init_time; 
+} Weather;
+Weather curr_weather;
+
 char test_string[] = "1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60 the quick brown fox jumps over the lazy dog ";
 
 void menu_init ()
@@ -74,8 +82,9 @@ void menu_init ()
   curr_date.month = 11;
   curr_date.year = 2016;
 
+  curr_weather.temp = 10;
+  curr_wewather.humidity = 80;
   //get the user's name
-  get_user_input ();
 }
 
 
@@ -86,7 +95,7 @@ void menu_init ()
 char * send_line_to_buffer (char * input, int line) 
 {
   int length = strlen(input);
-  
+
   int max_ind = 0; 
   for(int i = 0; i < CHARS_PER_LINE; i++ )
   {
@@ -132,34 +141,36 @@ void paginate_view_string (char * input) {
     if(read_switch(0) != init_exit_switch){
       return;
     }
-   if(read_button(1))
-   {
-     if(millis() - input_time > INPUT_TIME_THRESH)
-     { 
-      curr_page = min(curr_page + 1, max_page);
-      input_time = millis();
-      print_string_page(input, curr_page); 
-      line_prog = curr_page / (double)max_page; 
-      OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
-      OrbitOledDrawRect(SCREEN_LENGTH - 1,line_prog * SCREEN_HEIGHT);
-      OrbitOledUpdate ();
-     } 
-   }
-   if(read_button(0))
-   {
-     if(millis() - input_time > INPUT_TIME_THRESH)
-     { 
-      curr_page = max(curr_page - 1, 0);
-      input_time = millis();
-      print_string_page(input, curr_page); 
-      line_prog = curr_page / (double)max_page; 
-      OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
-      OrbitOledDrawRect(SCREEN_LENGTH- 1,line_prog * SCREEN_HEIGHT);
-      OrbitOledUpdate ();
-     } 
-   }
+    if(read_button(1))
+    {
+      if(millis() - input_time > INPUT_TIME_THRESH)
+      { 
+        curr_page = min(curr_page + 1, max_page);
+        input_time = millis();
+        print_string_page(input, curr_page); 
+        line_prog = curr_page / (double)max_page; 
+        OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
+        OrbitOledDrawRect(SCREEN_LENGTH - 1,line_prog * SCREEN_HEIGHT);
+        OrbitOledUpdate ();
+      } 
+    }
+    if(read_button(0))
+    {
+      if(millis() - input_time > INPUT_TIME_THRESH)
+      { 
+        curr_page = max(curr_page - 1, 0);
+        input_time = millis();
+        print_string_page(input, curr_page); 
+        line_prog = curr_page / (double)max_page; 
+        OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
+        OrbitOledDrawRect(SCREEN_LENGTH- 1,line_prog * SCREEN_HEIGHT);
+        OrbitOledUpdate ();
+      } 
+    }
   }
 }
+
+
 
 void display_long_string () 
 {
@@ -319,16 +330,16 @@ void get_user_input ()
     }
     delay(50);
     /**
-    Serial.print("Curr selection | ");
-    Serial.print(curr_selection);
-    Serial.print(" xcord | ");
-    Serial.print(xCord1);
-    Serial.print(" ycord | ");
-    Serial.print(yCord1);
-    Serial.print(" curr_col | ");
-    Serial.print(curr_col);
-    Serial.print(" curr_line | ");
-    Serial.println(curr_line); **/
+      Serial.print("Curr selection | ");
+      Serial.print(curr_selection);
+      Serial.print(" xcord | ");
+      Serial.print(xCord1);
+      Serial.print(" ycord | ");
+      Serial.print(yCord1);
+      Serial.print(" curr_col | ");
+      Serial.print(curr_col);
+      Serial.print(" curr_line | ");
+      Serial.println(curr_line); **/
   }
 }
 
@@ -467,16 +478,18 @@ void weather_page_tick ()
 {
   OrbitOledClearBuffer ();
   orbit_moveto_line(1);
-  orbit_display_centered_string ("Weather ");
+  orbit_display_centered_string ("Calendar ");
   OrbitOledUpdate ();
-  
 }
 
+char weather_buffer[24] = "10C and snowy"; 
 void notifications_page_tick () 
 {
   OrbitOledClearBuffer ();
   orbit_moveto_line(1);
-  orbit_display_centered_string ("Notifications");
+  orbit_display_centered_string ("Weather ");
+  orbit_moveto_line(2);
+  orbit_display_centered_string (weather_buffer);
   OrbitOledUpdate ();
 }
 
