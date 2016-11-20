@@ -1,5 +1,7 @@
 venv/
 *.pyc
+__pycache__
+
 .pioenvs
 .swp
 .clang_complete
