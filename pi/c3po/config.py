@@ -2,4 +2,9 @@ name = 'Lawrence Pan'
 city = 'Waterloo'
 country = 'CA'
 
-valid_events = ['get_name', 'get_time', 'get_weather']
+# Valid events
+GET_NAME = 'GET_NAME'
+GET_TIME = 'GET_TIME'
+GET_WEATHER = 'GET_WEATHER'
+
+valid_events = [GET_NAME, GET_TIME, GET_WEATHER]

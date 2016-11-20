@@ -11,12 +11,11 @@ def fetch(event_name, options):
     """
     Determine what operation to perform according to event_name
     """
-    if event_name == 'get_name':
-        # TODO grab name from db
-        return "Lawrence"
-    elif event_name == 'get_time':
+    if event_name == config.GET_NAME:
+        return config.name
+    elif event_name == config.GET_TIME:
         return datetime.now().strftime('%I:%M')
-    elif event_name == 'get_weather':
+    elif event_name == config.GET_WEATHER:
         return api.get_weather(config.city, config.country)
 
 
