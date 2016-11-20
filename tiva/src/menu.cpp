@@ -12,39 +12,27 @@
 #include "serial.h"
 
 //pre declarations 
+void debug_display_long_string_with_pot () ;
 void orbit_moveto_line (int line); 
 void display_menu ();
 int get_line_y (int line);
 
+//external  
 extern int xchOledMax; // defined in OrbitOled.c
 extern int ychOledMax; // defined in OrbitOled.c
+
+//contsants 
 const int SCREEN_LENGTH = 132;
 const int SCREEN_HEIGHT = 32;
 const int INPUT_TIME_THRESH = 200;  //ms
 
-char fill[] = {
-  0xFF,  
-  0xFF, 
-  0xFF, 
-  0xFF, 
-  0xFF, 
-  0xFF, 
-  0xFF, 
-  0xFF, 
-  0xFF, 
-  0xFF 
-};
-
-char test_string[] = "1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60 the quick brown fox jumps over the lazy dog ";
-
-
-
-const int CHARS_PER_LINE = 16; 
-const int CHAR_HEIGHT = 7; 
+const double CHAR_HEIGHT = 7; 
 const double CHAR_WIDTH = 8; 
-const int LINE_HEIGHT = 10; 
+const int CHARS_PER_LINE = 16; 
 
+const int LINE_HEIGHT = 10; 
 const int LINE_TOP_OFFSET = 3; 
+
 const int LINE_1_Y = LINE_TOP_OFFSET; 
 const int LINE_1_X = 0; 
 
@@ -54,7 +42,43 @@ const int LINE_2_X = 0;
 const int LINE_3_Y = LINE_2_Y + LINE_HEIGHT; 
 const int LINE_3_X = 0; 
 
+const int CENTERED_STR_Y = 0; 
+
+const int PAGE_LINE_SHIFT = 1;
+
+//global variables
 char line_buffer [CHARS_PER_LINE + 1] = " ";
+
+char user_name[] = "Lawrence";
+char * greetings[] = {"Good ", "evening "};
+
+typedef struct Date{
+  int minute;
+  int hour;
+  int second; 
+  int day; 
+  int month;
+  int year; 
+  long init_time; 
+} Date;
+Date curr_date;
+
+char test_string[] = "1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60 the quick brown fox jumps over the lazy dog ";
+
+void menu_init ()
+{
+  curr_date.minute = 15;
+  curr_date.hour = 13;
+  curr_date.second = 20;
+  curr_date.day = 19;
+  curr_date.month = 11;
+  curr_date.year = 2016;
+
+  //get the user's name
+  get_user_input ();
+}
+
+
 /**
  * copies the ith line of the input into line_buffer
  * if 
@@ -74,9 +98,6 @@ char * send_line_to_buffer (char * input, int line)
   return line_buffer; 
 }
 
-
-
-const int PAGE_LINE_SHIFT = 1;
 void print_string_page ( char * input, int page){
   int length = strlen(input);
   int lines = length / CHARS_PER_LINE; 
@@ -97,7 +118,6 @@ void print_string_page ( char * input, int page){
   OrbitOledDrawString (line_buffer);
   OrbitOledUpdate ();
 }
-
 
 void paginate_view_string (char * input) {
   int curr_page = 0; 
@@ -141,7 +161,6 @@ void paginate_view_string (char * input) {
   }
 }
 
-void debug_display_long_string_with_pot () ;
 void display_long_string () 
 {
   debug_display_long_string_with_pot ();
@@ -313,7 +332,6 @@ void get_user_input ()
   }
 }
 
-const int CENTERED_STR_Y = 5; 
 //need to have orbit x cordinate as 0 
 void orbit_display_centered_string (char * str) 
 {
@@ -324,23 +342,16 @@ void orbit_display_centered_string (char * str)
 
   for(int i = 0; i<spaces/2; i++){
     output[i] = ' ';
-    Serial.println(i);
-    Serial.println(output[i]);
   }
   for(int i = 0; i< length; i++){
     output[i + spaces/2] = str[i];
-    Serial.println(i);
-    Serial.println(output[i]);
   }
   for(int i = spaces/2 + length; i< + length + spaces; i++){
     output[i] = ' ';
-    Serial.println(i);
-    Serial.println(output[i]);
   }
   output[CHARS_PER_LINE] = '\0';
   OrbitOledDrawString (output);
 }
-
 
 void display_user_prompt (char * display_string)
 {
@@ -362,25 +373,10 @@ void display_user_prompt (char * display_string)
   }
 }
 
-char time_buffer[] = "12:55";
-char weather_buffer[] = "12 C";
 void display_test ()
 {
-  OrbitOledClearBuffer ();
-  OrbitOledMoveTo(0,-5);
-  OrbitOledDrawString (time_buffer);
-  OrbitOledUpdate(); 
-  delay(50000);
-
-  paginate_view_string (test_string);
-  char prompt[] = "Hi..";
-  display_user_prompt(prompt);
-  char prompt2[] = "Enter your name";
-  display_user_prompt(prompt2);
-  get_user_input (); 
   display_menu ();
 }
-
 
 void orbit_moveto_line (int line)
 {
@@ -411,18 +407,97 @@ int get_line_y(int line){
   return 0;
 }
 
+char time_buffer[CHARS_PER_LINE]; 
+void update_time () 
+{
+  long delta_t = millis() - curr_date.init_time;
+  if(delta_t < 1000) return;
+  //convert to seconds 
+  int seconds = delta_t / 1000; 
+  //keep track of rounding errors
+  curr_date.init_time = millis() - delta_t % 1000;
+  curr_date.second += seconds;
+  curr_date.minute += curr_date.second / 60;
+  curr_date.hour += curr_date.minute / 60;
+  curr_date.day += curr_date.hour / 24;
+  curr_date.second %= 60;
+  curr_date.minute %= 60;
+  curr_date.hour %= 24;
+  curr_date.day %= 31;
+  //TODO months + years 
+}
+
+void fill_time_buffer () 
+{
+  update_time(); 
+  time_buffer[0] = curr_date.hour / 10;  
+  time_buffer[1] = curr_date.hour % 10;  
+  time_buffer[2] = ':';  
+  time_buffer[3] = curr_date.minute / 10;  
+  time_buffer[4] = curr_date.minute % 10;  
+  time_buffer[5] = ':';  
+  time_buffer[6] = curr_date.second / 10;  
+  time_buffer[7] = curr_date.second % 10;  
+  for(int i = 0; i<=7; i++){
+    if(i == 2 || i == 5) continue;
+    time_buffer[i] += 48;
+  }
+}
+
+void intro_page_tick () 
+{
+  fill_time_buffer();
+  OrbitOledClearBuffer ();
+  orbit_moveto_line(1);
+  orbit_display_centered_string (time_buffer);
+  orbit_moveto_line(2);
+  if(curr_date.hour < 12)
+    orbit_display_centered_string ("Good Morning ");
+  else if(curr_date.hour < 18)
+    orbit_display_centered_string ("Good Afternoon ");
+  else 
+    orbit_display_centered_string ("Good Evening ");
+  orbit_moveto_line(3);
+  orbit_display_centered_string (user_name);
+  OrbitOledUpdate ();
+  delay (10);
+}
+
+void weather_page_tick () 
+{
+  OrbitOledClearBuffer ();
+  orbit_moveto_line(1);
+  orbit_display_centered_string ("Weather ");
+  OrbitOledUpdate ();
+  
+}
+
+void notifications_page_tick () 
+{
+  OrbitOledClearBuffer ();
+  orbit_moveto_line(1);
+  orbit_display_centered_string ("Notifications");
+  OrbitOledUpdate ();
+}
+
+long last_switch_time = millis();
+int curr_menu = 0; 
 void display_menu ()
 {
-  for(int i = 0; i < 30; i++)
-  { 
-    OrbitOledClearBuffer ();
-    orbit_moveto_line(1);
-    OrbitOledDrawString (time_buffer);
-    orbit_moveto_line(2);
-    OrbitOledDrawString (weather_buffer);
-    OrbitOledUpdate ();
-    delay (200);
-  }  
+  int menu_max = 2; 
+  switch(curr_menu){
+    case 0:
+      intro_page_tick ();
+      break;
+    case 1:
+      weather_page_tick ();
+      break;
+    case 2:
+      notifications_page_tick ();
+      break;
+  }
+  double pot = read_pot_percent(); 
+  curr_menu = round(pot * menu_max);
 } 
 
 

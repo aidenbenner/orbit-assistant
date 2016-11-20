@@ -20,6 +20,7 @@ void device_init ()
   oled_init ();
   accel_init ();
   init_sensors (); 
+  menu_init (); 
   led_left_right (255, true);
   led_left_right (255, false);
 }
@@ -31,7 +32,7 @@ void setup ()
 
 void loop ()
 {
-  display_test (); 
+  display_menu (); 
   delay(50);
 }
 

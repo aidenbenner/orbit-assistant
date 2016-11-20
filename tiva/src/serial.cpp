@@ -17,5 +17,14 @@ void print_accel ()
 
 }
 
+void serial_get_weather ()
+{
+
+}
+
+void serial_get_notifications ()
+{
+
+}
 
 
