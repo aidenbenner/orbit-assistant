@@ -17,7 +17,7 @@ def fetch(event_name, options):
         return datetime.now().strftime('%H:%M')
     elif event_name == config.GET_WEATHER:
         return api.get_weather(config.city, config.country)
-    elif event_name == config.DEBUG_PRINT:
+    elif event_name == config.PRINT_DEBUG:
         return options 
 
 
