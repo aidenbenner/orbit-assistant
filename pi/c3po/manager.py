@@ -20,15 +20,16 @@ class SerialManager(Thread):
     Thread that listens and writes to Serial
     """
 
-    def __init__(self, name, valid_events):
+    def __init__(self, name, valid_events, serial_port):
         Thread.__init__(self)
         self.name = name
         self.valid_events = valid_events
-        self.serial = Serial('/dev/ttyACM1')
+        self.serial = Serial(serial_port)
 
     def run(self):
         s = self.serial
 
+        print "Waiting on serial" 
         while True:
             # If no buffer in serial, skip the rest
             if s.in_waiting == 0:
