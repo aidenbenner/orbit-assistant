@@ -18,7 +18,7 @@ def fetch(event_name, options):
     elif event_name == config.GET_WEATHER:
         return api.get_weather(config.city, config.country)
     elif event_name == config.PRINT_DEBUG:
-        return options 
+        return options
 
 
 def handle(event_name, options, serial):
