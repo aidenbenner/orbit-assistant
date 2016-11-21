@@ -15,6 +15,7 @@
 void debug_display_long_string_with_pot () ;
 void orbit_moveto_line (int line); 
 void display_menu ();
+void menu_refresh ();
 int get_line_y (int line);
 
 //external  
@@ -49,28 +50,21 @@ const int PAGE_LINE_SHIFT = 1;
 
 //global variables
 char line_buffer [CHARS_PER_LINE + 1] = " ";
-
 char user_name[] = "Lawrence";
-char * greetings[] = {"Good ", "evening "};
 
-
-char test_string[] = "1,2,3,4,5,6,7,8,9, 10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60 the quick brown fox jumps over the lazy dog ";
 
 void menu_init ()
 {
-  curr_date.minute = 15;
-  curr_date.hour = 13;
-  curr_date.second = 20;
-  curr_date.day = 19;
-  curr_date.month = 11;
-  curr_date.year = 2016;
-
-  curr_weather.temp = 10;
-  curr_weather.humidity = 80;
-  curr_weather.precip = 80;
-  //get the user's name
+  //update the data from pi  
+  menu_refresh ();
 }
 
+void menu_refresh () 
+{
+  //regrab data from the pi 
+  //serial_update_weather (); 
+  //serial_update_date (); 
+}
 
 /**
  * copies the ith line of the input into line_buffer
@@ -78,8 +72,6 @@ void menu_init ()
  **/
 char * send_line_to_buffer (char * input, int line) 
 {
-  int length = strlen(input);
-
   int max_ind = 0; 
   for(int i = 0; i < CHARS_PER_LINE; i++ )
   {
@@ -92,9 +84,9 @@ char * send_line_to_buffer (char * input, int line)
 }
 
 void print_string_page ( char * input, int page){
-  int length = strlen(input);
-  int lines = length / CHARS_PER_LINE; 
-  int max_pages = lines / PAGE_LINE_SHIFT; 
+  //int length = strlen(input);
+  //int lines = length / CHARS_PER_LINE; 
+  //int max_pages = lines / PAGE_LINE_SHIFT; 
 
   int curr_line = page * PAGE_LINE_SHIFT; 
   OrbitOledClearBuffer(); 
@@ -156,75 +148,10 @@ void paginate_view_string (char * input) {
 
 
 
-void display_long_string () 
-{
-  debug_display_long_string_with_pot ();
-  return; 
-  char * input = test_string;
-  int length = strlen(input);
-  for(int i = 0; i<length/CHARS_PER_LINE - 1; i++)
-  { 
-    OrbitOledClear (); 
-    send_line_to_buffer (input,i);
-    OrbitOledMoveTo (LINE_1_X,LINE_1_Y);
-    OrbitOledDrawString (line_buffer);
-
-    send_line_to_buffer (input,i+1);
-    OrbitOledMoveTo (LINE_2_X,LINE_2_Y);
-    OrbitOledDrawString (line_buffer);
-
-    send_line_to_buffer (input,i+2);
-    OrbitOledMoveTo (LINE_3_X,LINE_3_Y);
-    OrbitOledDrawString (line_buffer);
-    OrbitOledUpdate ();
-    delay(2000);
-    //next line
-  }  
-}
-
-void debug_display_long_string_with_pot () 
-{
-  char * input = test_string;
-
-  int length = strlen(input);
-  int num_lines = length / CHARS_PER_LINE;
-
-  while(true)
-  { 
-    double percent_pot = read_pot_percent ();
-    Serial.print (" POT PERCENT | ");
-    Serial.print (percent_pot );
-    Serial.print (" PURE ANALOG ");
-    Serial.print (read_pot());
-    int offset = fmod(percent_pot * num_lines * CHAR_HEIGHT, CHAR_HEIGHT);
-    Serial.print (" OFFSET | ");
-    Serial.print(offset);
-    int min_vis_line = round(percent_pot * num_lines);
-    Serial.print (" MIN_VS | ");
-    Serial.println(min_vis_line);
-    //need to find which three lines are visible 
-    OrbitOledClear (); 
-    send_line_to_buffer (input,min_vis_line);
-    OrbitOledMoveTo (LINE_1_X,LINE_1_Y  - offset);
-    OrbitOledDrawString (line_buffer);
-
-    send_line_to_buffer (input,min_vis_line + 1);
-    OrbitOledMoveTo (LINE_2_X,LINE_2_Y - offset);
-    OrbitOledDrawString (line_buffer);
-
-    send_line_to_buffer (input,min_vis_line + 2);
-    OrbitOledMoveTo (LINE_3_X,LINE_3_Y - offset);
-    OrbitOledDrawString (line_buffer);
-    OrbitOledUpdate ();
-    delay(50);
-    //next line
-  }  
-}
-
 char selection_string [] = "abcdefghijklmnopqrstuvwxyz .@       ";
 char upper_selection_string [] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ .@       ";
 
-void orbit_display_linewrap (char * input)
+void orbit_display_linewrap (const char * input)
 {
   OrbitOledDrawString(selection_string);
 }
@@ -328,7 +255,7 @@ void get_user_input ()
 }
 
 //need to have orbit x cordinate as 0 
-void orbit_display_centered_string (char * str) 
+void orbit_display_centered_string (const char * str) 
 {
   //easiest way is probably just to take the length and pad both ends with spaces
   int length = strlen(str); 
@@ -374,7 +301,7 @@ void marquee_text (char * input, int step)
   }
 }
 
-void display_user_prompt (char * display_string)
+void display_user_prompt (const char * display_string)
 {
   OrbitOledClearBuffer ();
   Serial.println("hit");
@@ -431,20 +358,21 @@ int get_line_y(int line){
 char time_buffer[CHARS_PER_LINE]; 
 void update_time () 
 {
-  long delta_t = millis() - curr_date.init_time;
+  struct Date * curr_date = serial_get_date (); 
+  long delta_t = millis() - curr_date->init_time;
   if(delta_t < 1000) return;
   //convert to seconds 
   int seconds = delta_t / 1000; 
   //keep track of rounding errors
-  curr_date.init_time = millis() - delta_t % 1000;
-  curr_date.second += seconds;
-  curr_date.minute += curr_date.second / 60;
-  curr_date.hour += curr_date.minute / 60;
-  curr_date.day += curr_date.hour / 24;
-  curr_date.second %= 60;
-  curr_date.minute %= 60;
-  curr_date.hour %= 24;
-  curr_date.day %= 31;
+  curr_date->init_time = millis() - delta_t % 1000;
+  curr_date->second += seconds;
+  curr_date->minute += curr_date->second / 60;
+  curr_date->hour += curr_date->minute / 60;
+  curr_date->day += curr_date->hour / 24;
+  curr_date->second %= 60;
+  curr_date->minute %= 60;
+  curr_date->hour %= 24;
+  curr_date->day %= 31;
   //TODO months + years 
 }
 
@@ -457,15 +385,16 @@ int get_menu_selection ()
 
 void fill_time_buffer () 
 {
+  struct Date * curr_date = serial_get_date (); 
   update_time(); 
-  time_buffer[0] = curr_date.hour / 10;  
-  time_buffer[1] = curr_date.hour % 10;  
+  time_buffer[0] = curr_date->hour / 10;  
+  time_buffer[1] = curr_date->hour % 10;  
   time_buffer[2] = ':';  
-  time_buffer[3] = curr_date.minute / 10;  
-  time_buffer[4] = curr_date.minute % 10;  
+  time_buffer[3] = curr_date->minute / 10;  
+  time_buffer[4] = curr_date->minute % 10;  
   time_buffer[5] = ':';  
-  time_buffer[6] = curr_date.second / 10;  
-  time_buffer[7] = curr_date.second % 10;  
+  time_buffer[6] = curr_date->second / 10;  
+  time_buffer[7] = curr_date->second % 10;  
   for(int i = 0; i<=7; i++){
     if(i == 2 || i == 5) continue;
     time_buffer[i] += 48;
@@ -475,17 +404,18 @@ void fill_time_buffer ()
 char date_buffer[10]; 
 void fill_date_buffer () 
 {
+  struct Date * curr_date = serial_get_date (); 
   update_time(); 
-  date_buffer[0] = curr_date.day / 10;  
-  date_buffer[1] = curr_date.day % 10;  
+  date_buffer[0] = curr_date->day / 10;  
+  date_buffer[1] = curr_date->day % 10;  
   date_buffer[2] = '/';  
-  date_buffer[3] = curr_date.month/ 10;  
-  date_buffer[4] = curr_date.month % 10;  
+  date_buffer[3] = curr_date->month/ 10;  
+  date_buffer[4] = curr_date->month % 10;  
   date_buffer[5] = '/';  
-  date_buffer[6] = curr_date.year / 1000 % 10;  
-  date_buffer[7] = curr_date.year / 100 % 10;  
-  date_buffer[8] = curr_date.year / 10 % 10;  
-  date_buffer[9] = curr_date.year % 10;  
+  date_buffer[6] = curr_date->year / 1000 % 10;  
+  date_buffer[7] = curr_date->year / 100 % 10;  
+  date_buffer[8] = curr_date->year / 10 % 10;  
+  date_buffer[9] = curr_date->year % 10;  
   for(int i = 0; i<=9; i++){
     if(i == 2 || i == 5) continue;
     date_buffer[i] += 48;
@@ -493,7 +423,9 @@ void fill_date_buffer ()
 
 }
 
+
 long last_page_time = millis(); 
+
 //returns if the user clicks up or down to click
 int get_page_action (int curr, int max)
 {
@@ -514,11 +446,11 @@ int get_page_action (int curr, int max)
   return curr; 
 }
 
-
 void intro_page_tick () 
 {
   int init_selection = get_menu_selection();
   int scroll = 0; 
+  struct Date * curr_date = serial_get_date (); 
   while(init_selection == get_menu_selection()){
     fill_time_buffer();
     OrbitOledClearBuffer ();
@@ -527,9 +459,9 @@ void intro_page_tick ()
       orbit_display_centered_string (time_buffer);
     }
     orbit_moveto_line(2 - scroll);
-    if(curr_date.hour < 12)
+    if(curr_date->hour < 12)
       orbit_display_centered_string ("Good Morning ");
-    else if(curr_date.hour < 18)
+    else if(curr_date->hour < 18)
       orbit_display_centered_string ("Good Afternoon ");
     else 
       orbit_display_centered_string ("Good Evening ");
@@ -567,7 +499,6 @@ void weather_page_tick ()
 {
   int init_selection = get_menu_selection();
   while(init_selection == get_menu_selection()){
-    double init_pot = 0; 
     OrbitOledClearBuffer ();
     orbit_moveto_line(1);
     orbit_display_centered_string ("Weather ");
@@ -598,4 +529,42 @@ void display_menu ()
   curr_menu = get_menu_selection();
 } 
 
+/**
+void debug_display_long_string_with_pot () 
+{
+  char * input = test_string;
 
+  int length = strlen(input);
+  int num_lines = length / CHARS_PER_LINE;
+
+  while(true)
+  { 
+    double percent_pot = read_pot_percent ();
+    Serial.print (" POT PERCENT | ");
+    Serial.print (percent_pot );
+    Serial.print (" PURE ANALOG ");
+    Serial.print (read_pot());
+    int offset = fmod(percent_pot * num_lines * CHAR_HEIGHT, CHAR_HEIGHT);
+    Serial.print (" OFFSET | ");
+    Serial.print(offset);
+    int min_vis_line = round(percent_pot * num_lines);
+    Serial.print (" MIN_VS | ");
+    Serial.println(min_vis_line);
+    //need to find which three lines are visible 
+    OrbitOledClear (); 
+    send_line_to_buffer (input,min_vis_line);
+    OrbitOledMoveTo (LINE_1_X,LINE_1_Y  - offset);
+    OrbitOledDrawString (line_buffer);
+
+    send_line_to_buffer (input,min_vis_line + 1);
+    OrbitOledMoveTo (LINE_2_X,LINE_2_Y - offset);
+    OrbitOledDrawString (line_buffer);
+
+    send_line_to_buffer (input,min_vis_line + 2);
+    OrbitOledMoveTo (LINE_3_X,LINE_3_Y - offset);
+    OrbitOledDrawString (line_buffer);
+    OrbitOledUpdate ();
+    delay(50);
+    //next line
+  }  
+} **/ 

@@ -14,9 +14,11 @@ def fetch(event_name, options):
     if event_name == config.GET_NAME:
         return config.name
     elif event_name == config.GET_TIME:
-        return datetime.now().strftime('%H:%M')
+        return datetime.now().strftime('%Y/%m/%d:%H:%M:%S')
     elif event_name == config.GET_WEATHER:
         return api.get_weather(config.city, config.country)
+    elif event_name == config.GET_NEWS:
+        return api.get_news(int(options)); 
     elif event_name == config.PRINT_DEBUG:
         return options
 
