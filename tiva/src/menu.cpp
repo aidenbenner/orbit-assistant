@@ -376,7 +376,7 @@ void update_time ()
   //TODO months + years 
 }
 
-const int NUM_MENUS = 3; 
+static const int NUM_MENUS = 3; 
 int get_menu_selection () 
 {
   double pot = read_pot_percent(); 

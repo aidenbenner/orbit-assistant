@@ -26,13 +26,21 @@ typedef struct Post {
 } Post;
 
 
+// Singleton state
+Date g_date;
+Weather g_weather;
+
 Weather * serial_get_weather ();
 Date * serial_get_date ();
+
 void serial_init ();
 void serial_update_date ();
 void serial_update_weather ();
 void serial_update_news ();
 void serial_print_debug (char output[]);
 void serial_log_err (char message[]);
+
+
+
 
 #endif

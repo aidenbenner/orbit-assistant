@@ -7,9 +7,8 @@
 #include <aJSON.h>
 
 //pre definitions 
+//TODO FIX PRINT_DEBUG PRINT
 void serial_print_debug (const char * output);
-void serial_print_err (const char output[]);
-void serial_print_err (int output);
 void serial_print_err (long output);
 
 typedef struct Date Date; 
@@ -17,8 +16,6 @@ typedef struct Weather Weather;
 
 const int NUM_NEWS_POSTS = 10; 
 Post news[NUM_NEWS_POSTS]; 
-Date curr_date;
-Weather curr_weather;
 
 Date * serial_get_date () 
 {
@@ -37,12 +34,13 @@ void serial_init ()
   //serial_update_weather (); 
 }
 
-const int SERIAL_BUFF_SIZE = 500;  
-char serial_buffer[SERIAL_BUFF_SIZE]; 
+static const int SERIAL_BUFF_SIZE = 500;  
+static char serial_buffer[SERIAL_BUFF_SIZE]; 
 //reads next line into serial_buffer
 void serial_read_line () 
 {
   char c = ' '; 
+  char last = ' ';
   int bufInd = 0; 
   while(c != '\n')
   {
@@ -54,7 +52,7 @@ void serial_read_line ()
     if(Serial.available())
     {
       c = Serial.read();
-      if(c == '\n')
+      if(c == '\r' && last == '\n')
       {
         serial_buffer[bufInd] = '\0'; 
         break;
@@ -62,6 +60,7 @@ void serial_read_line ()
       serial_buffer[bufInd] = c; 
       bufInd++; 
     }
+    last = c; 
   } 
   delay(20); 
 }
@@ -87,9 +86,7 @@ aJsonObject * get_next_payload ()
 void serial_update_date () 
 {
   Serial.println ("GET_TIME:NULL");
-  aJsonObject* time_json = get_next_payload();;
 
-  const char * date_str = aJson.print(time_json);
   int length = strlen(serial_buffer); 
   curr_date.year   = string_section_to_int(date_str,0,4);
   curr_date.month  = string_section_to_int(date_str,5,7);
@@ -97,7 +94,6 @@ void serial_update_date ()
   curr_date.minute = string_section_to_int(date_str,11,13);
   curr_date.hour   = string_section_to_int(date_str,14,16);
   curr_date.second = string_section_to_int(date_str,17,19);
-
   curr_date.init_time = millis();
 
   Serial.println(curr_date.year);
