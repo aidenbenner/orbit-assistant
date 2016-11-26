@@ -35,10 +35,16 @@ extern const double CHAR_HEIGHT;
 extern const double CHAR_WIDTH; 
 
 //constants
+static const int NUM_MENUS = 3; 
 
 //local variables
 static char user_name[] = "Lawrence";
 static char time_buffer[CHARS_PER_LINE]; 
+static char date_buffer[CHARS_PER_LINE]; 
+static long last_menu_switch_time = millis();
+static int curr_menu = 0; 
+
+static long last_page_action_time = millis(); 
 
 //placeholder for testing 
 //this populates g_date and g_weather with dummy data
@@ -78,7 +84,6 @@ void get_user_name ()
   strcpy(user_name, get_user_input());
 }
 
-
 void update_time () 
 {
   struct Date * curr_date = serial_get_date (); 
@@ -99,7 +104,6 @@ void update_time ()
   //TODO months + years 
 }
 
-static const int NUM_MENUS = 3; 
 int get_menu_selection () 
 {
   double pot = read_pot_percent(); 
@@ -124,7 +128,6 @@ void fill_time_buffer ()
   }
 }
 
-char date_buffer[10]; 
 void fill_date_buffer () 
 {
   struct Date * curr_date = serial_get_date (); 
@@ -146,22 +149,19 @@ void fill_date_buffer ()
   date_buffer[10] = 0; 
 }
 
-
-long last_page_time = millis(); 
-
 //returns if the user clicks up or down to click
 int get_page_action (int curr, int max)
 {
   if(read_button(1))
   {
-    if(millis() - last_page_time > INPUT_TIME_THRESH)
+    if(millis() - last_page_action_time > INPUT_TIME_THRESH)
     {
       if(curr < max) ++curr;
     }
   }
   if(read_button(0))
   {
-    if(millis() - last_page_time > INPUT_TIME_THRESH)
+    if(millis() - last_page_action_time > INPUT_TIME_THRESH)
     {
       if(curr > 0) --curr;
     }
@@ -214,13 +214,17 @@ void calendar_page_tick ()
   OrbitOledUpdate ();
 }
 
+//update the weather page 
 void weather_page_tick () 
 {
   int init_selection = get_menu_selection();
   long init_time = millis(); 
+
+  //TODO maybe get rid of these magic numbers
   long init_delay= 500; 
   int tmp_size = 20;
   char temp[tmp_size]; 
+  //need to convert our weather struct into a printable string
   char second_line[30]; 
   int_to_char_arr (temp, tmp_size, g_weather.temp);
   strcpy (second_line, temp); 
@@ -240,8 +244,6 @@ void weather_page_tick ()
   }  
 }
 
-long last_switch_time = millis();
-int curr_menu = 0; 
 
 void display_menu ()
 {
