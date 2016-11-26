@@ -33,6 +33,6 @@ void setup ()
 void loop ()
 {
   display_menu (); 
-  delay(50);
+  delay(5);
 }
 

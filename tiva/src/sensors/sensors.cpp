@@ -9,7 +9,7 @@
 #include "sensors.h"
 
 static const uint8_t NUM_SWITCHES = 2;
-static const uint8_t NUM_LEDS = 3;
+static const uint8_t NUM_LEDS = 4;
 static const uint8_t NUM_BUTTONS = 2;
 static uint32_t P_SWITCHES[] = { PA_6 , PA_7};  
 static uint32_t P_LEDS[] = { PC_6, PC_7, PD_6, PB_5}; 
@@ -57,7 +57,22 @@ double read_pot_percent ()
 
 void set_led (int port, int val)
 {
-  analogWrite(P_LEDS[port],val);
+  analogWrite(P_LEDS[NUM_LEDS - 1 - port],val);
+}
+
+//encode
+void led_encode_percent (double min, double max)
+{
+  //255 * 4 
+  double equiv = min/max * 255 * 4; 
+  int full_leds = equiv / 255; 
+  int next_val = (int)equiv % 255; 
+  for(int i = 0; i<full_leds; i++)
+    set_led(i,255);
+  set_led(full_leds,next_val);
+  for(int i = full_leds + 1; i<NUM_LEDS; i++){
+    set_led(i,0);
+  }
 }
 
 void set_all_led (int val)
@@ -80,6 +95,19 @@ void led_gradient (int time)
   {
     set_all_led(i);
     delay(del);
+  }
+}
+
+void led_gradient (int time, long init_time)
+{
+  double percent = 100 * (fmod(millis() - init_time, time)) / time ;  
+  if(percent < 50)
+  {
+    set_all_led(255 * (percent) / 50 );
+  }
+  else
+  {
+    set_all_led(255 - 255 * (percent - 50) / 50);
   }
 }
 

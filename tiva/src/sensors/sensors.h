@@ -19,9 +19,12 @@ int read_pot ();
 // LEDS
 void set_led (int port, int val);
 void set_all_led (int val);
+void led_encode_percent (double min, double max);
 
 // led patterns
 void led_gradient (int time);
+void led_gradient (int time, long init_time);
+
 void led_left_right (int time, bool left);
 void flash_led (int port, int del);
 
