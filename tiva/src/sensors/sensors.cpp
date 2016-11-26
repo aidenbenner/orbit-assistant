@@ -9,7 +9,7 @@
 #include "sensors.h"
 
 static const uint8_t NUM_SWITCHES = 2;
-static const uint8_t NUM_LEDS = 3;
+static const uint8_t NUM_LEDS = 4;
 static const uint8_t NUM_BUTTONS = 2;
 static uint32_t P_SWITCHES[] = { PA_6 , PA_7};  
 static uint32_t P_LEDS[] = { PC_6, PC_7, PD_6, PB_5}; 
