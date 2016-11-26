@@ -29,6 +29,7 @@ class SerialManager(Thread):
 
     def run(self):
         s = self.serial
+        print("Start polling on serial")
 
         while True:
             # If no buffer in serial, skip the rest
@@ -36,7 +37,7 @@ class SerialManager(Thread):
                 continue
 
             line = s.readline()
-            print ("Input from tiva: " + line)
+            print('Input from tiva: ' + line)
 
             try:
                 event, options = parse_input(line, self.valid_events)
