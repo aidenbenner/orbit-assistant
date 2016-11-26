@@ -39,6 +39,11 @@ static int orbit_x = 0;
 static const char selection_string [] = "abcdefghijklmnopqrstuvwxyz .@       ";
 static const char upper_selection_string [] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ .@       ";
 
+static const int insert_time_thresh = 200;  //ms
+static const int max_user_input_buffer = CHARS_PER_LINE * 3; 
+static char user_input_buffer[max_user_input_buffer * 3]; 
+
+
 void oled_init ()
 {
   OrbitOledInit ();
@@ -133,9 +138,6 @@ void paginate_view_string (char * input)
   }
 }
 
-const int insert_time_thresh = 200;  //ms
-const int max_user_input = CHARS_PER_LINE * 3; 
-char user_input[max_user_input * 3]; 
 
 char * get_user_input ()
 {
@@ -143,8 +145,8 @@ char * get_user_input ()
   int curr_selection = 0; 
   int max_selection = 28; 
 
-  memset(user_input, 0, sizeof(user_input)/sizeof(user_input[0]));
-  user_input[max_user_input - 1] = '\0';
+  memset(user_input_buffer, 0, sizeof(user_input_buffer)/sizeof(user_input_buffer[0]));
+  user_input_buffer[max_user_input_buffer - 1] = '\0';
 
   int input_index = 0; 
   long last_insert_time = millis(); 
@@ -157,7 +159,7 @@ char * get_user_input ()
     orbit_moveto_line (1); 
     int scroll_offset = input_index - CHARS_PER_LINE + 1;
     if(scroll_offset < 0) scroll_offset = 0; 
-    OrbitOledDrawString(user_input + scroll_offset);
+    OrbitOledDrawString(user_input_buffer + scroll_offset);
 
     if(!isUpper){ 
       orbit_moveto_line (2); 
@@ -191,11 +193,11 @@ char * get_user_input ()
       { 
         if(!isUpper)
         {
-          user_input[input_index] = selection_string[curr_selection];  
+          user_input_buffer[input_index] = selection_string[curr_selection];  
         } 
         else
         {
-          user_input[input_index] = upper_selection_string[curr_selection];  
+          user_input_buffer[input_index] = upper_selection_string[curr_selection];  
         }
         input_index++; 
         last_insert_time = millis(); 
@@ -205,7 +207,7 @@ char * get_user_input ()
       if( millis() - last_insert_time > insert_time_thresh ) 
       { 
         if(input_index > 0)
-          user_input[--input_index] = ' ';  
+          user_input_buffer[--input_index] = ' ';  
         last_insert_time = millis() - 100; 
       }  
     }
@@ -214,7 +216,7 @@ char * get_user_input ()
     }
     delay(50);
   }
-  return user_input; 
+  return user_input_buffer; 
 }
 
 //need to have orbit x cordinate as 0 
@@ -252,7 +254,7 @@ void marquee_text (char * input, long init_time, long init_delay)
   //figure out what percent we are 
   if(init_time + init_delay > millis()) 
   {
-    OrbitOledMoveTo (0, _orbit_y); 
+    OrbitOledMoveTo (0, orbit_y); 
     OrbitOledDrawString(input);
     return;
   }
@@ -264,14 +266,14 @@ void marquee_text (char * input, long init_time, long init_delay)
   int right_percent = 40;
   int left_percent = 40; 
   if(percent_done < delay_percent){
-    OrbitOledMoveTo (0, _orbit_y); 
+    OrbitOledMoveTo (0, orbit_y); 
     OrbitOledDrawString(input);
     return;
   }
   else if(percent_done < left_percent + delay_percent) 
   { //showing first half at 50 all characters should be off the screen
     int chars_showing = length * (percent_done - delay_percent) / (left_percent); 
-    OrbitOledMoveTo (0,_orbit_y); 
+    OrbitOledMoveTo (0,orbit_y); 
     OrbitOledDrawString(input + chars_showing);
     //going to need to figure out a different way. 
   }
@@ -279,7 +281,7 @@ void marquee_text (char * input, long init_time, long init_delay)
   {
     int chars_showing = length - length * (percent_done - (left_percent + delay_percent))  / right_percent; 
     int print_location = chars_showing ;
-    OrbitOledMoveTo (chars_showing * CHAR_WIDTH, _orbit_y); 
+    OrbitOledMoveTo (chars_showing * CHAR_WIDTH, orbit_y); 
     OrbitOledDrawString(input);
   }
 }
@@ -313,18 +315,18 @@ void orbit_moveto_line (int line)
   switch(line) 
   {
     case 1:
-      _orbit_y = LINE_1_Y;
-      _orbit_x = LINE_1_X;
+      orbit_y = LINE_1_Y;
+      orbit_x = LINE_1_X;
       OrbitOledMoveTo (LINE_1_X,LINE_1_Y);
       break;
     case 2:
-      _orbit_y = LINE_2_Y;
-      _orbit_x = LINE_2_X;
+      orbit_y = LINE_2_Y;
+      orbit_x = LINE_2_X;
       OrbitOledMoveTo (LINE_2_X,LINE_2_Y);
       break;
     case 3:
-      _orbit_y = LINE_3_Y;
-      _orbit_x = LINE_3_X;
+      orbit_y = LINE_3_Y;
+      orbit_x = LINE_3_X;
       OrbitOledMoveTo (LINE_3_X,LINE_3_Y);
       break;
   }

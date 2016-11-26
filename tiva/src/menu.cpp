@@ -17,6 +17,7 @@ void debug_display_long_string_with_pot () ;
 void orbit_moveto_line (int line); 
 void display_menu ();
 void menu_refresh ();
+void menu_tick ();
 void display_user_prompt (const char * display_string);
 int get_line_y (int line);
 
@@ -202,7 +203,7 @@ void intro_page_tick ()
     OrbitOledUpdate ();
 
     scroll = get_page_action(scroll,1); 
-    delay (10);
+    menu_tick ();
   }
 }
 
@@ -213,6 +214,14 @@ void calendar_page_tick ()
   orbit_display_centered_string ("Menu 3");
   OrbitOledUpdate ();
 }
+
+void menu_tick () 
+{
+  led_gradient(3000,0);
+
+}
+
+
 
 //update the weather page 
 void weather_page_tick () 
@@ -241,9 +250,9 @@ void weather_page_tick ()
     orbit_moveto_line (3);
     marquee_text(g_weather.description, init_time, init_delay); 
     OrbitOledUpdate ();
+    menu_tick ();
   }  
 }
-
 
 void display_menu ()
 {
@@ -259,6 +268,7 @@ void display_menu ()
       calendar_page_tick ();
       break;
   }
+  menu_tick ();
   curr_menu = get_menu_selection();
 } 
 

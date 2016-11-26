@@ -83,6 +83,19 @@ void led_gradient (int time)
   }
 }
 
+void led_gradient (int time, long init_time)
+{
+  double percent = 100 * (fmod(millis() - init_time, time)) / time ;  
+  if(percent < 50)
+  {
+    set_all_led(255 * (percent) / 50 );
+  }
+  else
+  {
+    set_all_led(255 - 255 * (percent - 50) / 50);
+  }
+}
+
 void led_left_right (int time, bool left)
 {
   int del = time/NUM_LEDS;
