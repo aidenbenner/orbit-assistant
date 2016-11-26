@@ -30,10 +30,12 @@ extern int ychOledCur;
 //defined in oled.c 
 extern const int SCREEN_LENGTH;
 extern const int SCREEN_HEIGHT;
-extern const int INPUT_TIME_THRESH;  //ms
+extern const unsigned int INPUT_TIME_THRESH;  //ms
 extern const int DELAY_MS;  //ms
 extern const double CHAR_HEIGHT; 
 extern const double CHAR_WIDTH; 
+
+
 
 //constants
 static const int NUM_MENUS = 3; 
@@ -49,6 +51,17 @@ static long last_page_action_time = millis();
 
 //placeholder for testing 
 //this populates g_date and g_weather with dummy data
+
+const int NUM_REDDIT_POSTS = 5; 
+struct Post reddit_news[NUM_REDDIT_POSTS]; 
+
+//DUMMY DATA TEST ONLY
+
+  char dummy_headline_1[] = "Edward Snowden's bid to guarantee that he would not be extradited to the US if he visited Norway has been rejected by the Norwedgian supreme court.";
+  char dummy_headline_2[] = "Catholic Church Finally Apologizes for Its Role in the Deaths of Over 800K During Rwandan Genocide";
+  char dummy_headline_3[] = "Top scientist who discovered Litvinenko poison 'stabbed himself to death with two knives' after trip to Russia";
+  char dummy_headline_4[] = "Uganda is shutting down schools funded by Mark Zuckerberg, Bill Gates ";
+  char dummy_headline_5[] = "Google is warning prominent journalists and professors that nation-sponsored hackers have recently targeted their accounts, according to reports delivered in the past 24 hours over social media";
 void test_data() 
 {
   g_date.year  = 2016;
@@ -63,6 +76,13 @@ void test_data()
   g_weather.high = 29; 
   g_weather.description = "Cloudy and a chance of thunder."; 
   g_weather.location = "Waterloo, ON"; 
+
+  reddit_news[0].title = dummy_headline_1;
+  reddit_news[1].title = dummy_headline_2;
+  reddit_news[2].title = dummy_headline_3;
+  reddit_news[3].title = dummy_headline_4;
+  reddit_news[4].title = dummy_headline_5;
+
 }
 
 void menu_init ()
@@ -158,6 +178,7 @@ int get_page_action (int curr, int max)
     if(millis() - last_page_action_time > INPUT_TIME_THRESH)
     {
       if(curr < max) ++curr;
+      last_page_action_time = millis();
     }
   }
   if(read_button(0))
@@ -165,6 +186,7 @@ int get_page_action (int curr, int max)
     if(millis() - last_page_action_time > INPUT_TIME_THRESH)
     {
       if(curr > 0) --curr;
+      last_page_action_time = millis();
     }
   }
   return curr; 
@@ -207,20 +229,45 @@ void intro_page_tick ()
   }
 }
 
-void calendar_page_tick () 
+void news_page_tick () 
 {
-  OrbitOledClearBuffer ();
-  orbit_moveto_line(1);
-  orbit_display_centered_string ("Menu 3");
-  OrbitOledUpdate ();
+  int init_selection = get_menu_selection();
+  long init_time = millis(); 
+  long time_selected_init = millis(); 
+  long marquee_delay = 200; 
+
+  int scroll = 0; 
+  int line_select = 1; 
+  int article = 0;  //0th article = menu 
+  while(init_selection == get_menu_selection()){
+    OrbitOledClearBuffer ();
+    for(int i = 1; i<=NUM_REDDIT_POSTS; i++){
+      //lines indexed at 1
+      orbit_moveto_line(i);
+      if(line_select == i){
+        marquee_text (reddit_news[i - 1].title, time_selected_init, marquee_delay); 
+      }
+      else{
+        //kind of a hack
+        OrbitOledDrawString (reddit_news[i - 1].title);
+      }
+    }
+    oled_paint_progress_bar(scroll,NUM_REDDIT_POSTS); 
+    oled_paint_line_selection (line_select);
+    OrbitOledUpdate ();
+    int new_line_select = get_page_action (line_select, 4); 
+    if(new_line_select != line_select){
+      time_selected_init = millis(); 
+      line_select = new_line_select;
+    }
+    menu_tick ();
+  }
 }
 
 void menu_tick () 
 {
   led_gradient(3000,0);
-
 }
-
 
 
 //update the weather page 
@@ -265,7 +312,11 @@ void display_menu ()
       weather_page_tick ();
       break;
     case 2:
-      calendar_page_tick ();
+      news_page_tick ();
+      break;
+    default:
+      OrbitOledClearBuffer ();
+      OrbitOledUpdate ();
       break;
   }
   menu_tick ();

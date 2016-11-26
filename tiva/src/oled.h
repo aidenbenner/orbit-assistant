@@ -10,7 +10,7 @@ void display_long_string ();
 
 extern const int SCREEN_LENGTH;
 extern const int SCREEN_HEIGHT;
-extern const int INPUT_TIME_THRESH;  //ms
+extern const unsigned int INPUT_TIME_THRESH;  //ms
 extern const int DELAY_MS;  //ms
 extern const double CHAR_HEIGHT; 
 extern const double CHAR_WIDTH; 
@@ -27,10 +27,12 @@ extern const int PAGE_LINE_SHIFT;
 
 
 char * get_user_input ();
+void oled_paint_line_selection (int current_line);
 void orbit_display_centered_string (const char * str);
-void marquee_text (char * input, long init_time, long init_delay);
-void marquee_text (const char * input, long init_time, long init_delay);
+void marquee_text (char * input, unsigned long init_time, unsigned long init_delay);
+void marquee_text (const char * input, unsigned long init_time, unsigned  long init_delay);
 void display_user_prompt (const char * display_string);
+void oled_paint_progress_bar (double current, double max);
 void orbit_moveto_line (int line);
 int get_line_y(int line); 
 

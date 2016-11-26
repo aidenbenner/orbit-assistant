@@ -9,7 +9,7 @@
 //constants
 const int SCREEN_LENGTH = 132;
 const int SCREEN_HEIGHT = 32;
-const int INPUT_TIME_THRESH = 200;  //ms
+const unsigned int INPUT_TIME_THRESH = 300;  //ms
 const int DELAY_MS = 50;  //ms
 
 const double CHAR_HEIGHT = 7; 
@@ -93,6 +93,33 @@ void print_string_page ( char * input, int page)
   OrbitOledMoveTo (LINE_3_X,LINE_3_Y);
   OrbitOledDrawString (line_buffer);
   OrbitOledUpdate ();
+}
+
+void oled_paint_progress_bar (double current, double max)
+{
+    OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
+    OrbitOledDrawRect(SCREEN_LENGTH - 1, current / max * SCREEN_HEIGHT);
+}
+
+void oled_paint_line_selection (int current_line)
+{
+  int selection_height = 8; 
+  int selection_width = 3; 
+  switch(current_line) 
+  {
+    case 1:
+      OrbitOledMoveTo(0,LINE_1_Y);
+      OrbitOledDrawRect(selection_width, LINE_1_Y + selection_height);
+      break;
+    case 2:
+      OrbitOledMoveTo(0,LINE_2_Y);
+      OrbitOledDrawRect(selection_width, LINE_2_Y + selection_height);
+      break;
+    case 3:
+      OrbitOledMoveTo(0,LINE_3_Y);
+      OrbitOledDrawRect(selection_width, LINE_3_Y + selection_height);
+      break;
+  }
 }
 
 void paginate_view_string (char * input) 
@@ -214,7 +241,7 @@ char * get_user_input ()
     if(read_switch(0) != init_break_toggle) {
       break;
     }
-    delay(50);
+    delay (50);
   }
   return user_input_buffer; 
 }
@@ -240,7 +267,7 @@ void orbit_display_centered_string (const char * str)
   OrbitOledDrawString (output);
 }
 
-void marquee_text (char * input, long init_time, long init_delay)
+void marquee_text (char * input, unsigned long init_time, unsigned long init_delay)
 {
   //check if two short
   int length = strlen(input); 
@@ -262,27 +289,27 @@ void marquee_text (char * input, long init_time, long init_delay)
 
   init_time += init_delay;
   double percent_done = 100 * fmod(millis() - init_time, time_ms) / time_ms;
-  int delay_percent = 10;
-  int right_percent = 40;
-  int left_percent = 40; 
-  if(percent_done < delay_percent){
-    OrbitOledMoveTo (0, orbit_y); 
-    OrbitOledDrawString(input);
-    return;
-  }
-  else if(percent_done < left_percent + delay_percent) 
+  int delay_percent = init_delay / time_ms;
+  int right_percent = 50 - delay_percent;
+  int left_percent = 50 - delay_percent; 
+  if(percent_done < left_percent) 
   { //showing first half at 50 all characters should be off the screen
-    int chars_showing = length * (percent_done - delay_percent) / (left_percent); 
+    int chars_showing = length * (percent_done) / (left_percent); 
     OrbitOledMoveTo (0,orbit_y); 
     OrbitOledDrawString(input + chars_showing);
     //going to need to figure out a different way. 
   }
-  else 
+  else if(percent_done < left_percent + right_percent)
   {
-    int chars_showing = length - length * (percent_done - (left_percent + delay_percent))  / right_percent; 
+    int chars_showing = length - length * (percent_done - (left_percent))  / right_percent; 
     int print_location = chars_showing ;
     OrbitOledMoveTo (chars_showing * CHAR_WIDTH, orbit_y); 
     OrbitOledDrawString(input);
+  }
+  else {
+    OrbitOledMoveTo (0, orbit_y); 
+    OrbitOledDrawString(input);
+    return;
   }
 }
 
