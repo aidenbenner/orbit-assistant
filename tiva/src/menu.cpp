@@ -52,6 +52,12 @@ const int PAGE_LINE_SHIFT = 1;
 char line_buffer [CHARS_PER_LINE + 1] = " ";
 char user_name[] = "Lawrence";
 
+//placeholder for testing 
+//this populates g_date and g_weather with dummy data
+void test_data() 
+{
+
+}
 
 void menu_init ()
 {
