@@ -13,18 +13,20 @@ void serial_print_err (long output);
 
 typedef struct Date Date; 
 typedef struct Weather Weather; 
+Date g_date;
+Weather g_weather;
 
 const int NUM_NEWS_POSTS = 10; 
 Post news[NUM_NEWS_POSTS]; 
 
 Date * serial_get_date () 
 {
-  return &g_date; 
+  return & g_date; 
 }
 
 Weather * serial_get_weather () 
 {
-  return &g_weather; 
+  return & g_weather; 
 }
 
 void serial_init ()
@@ -128,11 +130,6 @@ void serial_print_err (long output)
 {
   Serial.print("PRINT_ERROR:"); 
   Serial.println(output); 
-}
-
-void serial_print_err (int output)
-{
-  serial_print_err((long)output); 
 }
 
 void serial_print_err (const char output[])
