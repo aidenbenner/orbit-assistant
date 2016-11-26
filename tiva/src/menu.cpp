@@ -5,6 +5,7 @@
 #include <OrbitOled.h>
 #include <FillPat.h>
 #include <stdlib.h>
+#include <cmath>
 #include "string.h"
 #include "sensors/accel.h"
 #include "sensors/sensors.h"
@@ -38,7 +39,7 @@ extern const double CHAR_WIDTH;
 
 
 //constants
-static const int NUM_MENUS = 3; 
+static const int NUM_MENUS = 4; 
 
 //local variables
 static char user_name[] = "Lawrence";
@@ -128,7 +129,7 @@ void update_time ()
 int get_menu_selection () 
 {
   double pot = read_pot_percent(); 
-  return round(pot * NUM_MENUS);
+  return (pot * NUM_MENUS);
 }
 
 void fill_time_buffer () 
@@ -192,13 +193,13 @@ int get_page_action (int curr, int max)
   return curr; 
 }
 
-void intro_page_tick () 
+void intro_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
   int scroll = 0; 
   struct Date * curr_date = serial_get_date (); 
   int init_switch = read_switch(0); 
-  while(init_selection == get_menu_selection()){
+  while(selection == get_menu_selection()){
     if(init_switch != read_switch(0)){
       get_user_name ();
     }
@@ -222,14 +223,14 @@ void intro_page_tick ()
       orbit_moveto_line (4 - scroll);
       orbit_display_centered_string (date_buffer);
     }
+    menu_tick ();
     OrbitOledUpdate ();
 
     scroll = get_page_action(scroll,1); 
-    menu_tick ();
   }
 }
 
-void news_page_tick () 
+void news_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
   long init_time = millis(); 
@@ -239,7 +240,7 @@ void news_page_tick ()
   int line_select = 1; 
   int page = 0 ; 
   int page_max = NUM_REDDIT_POSTS; 
-  while(init_selection == get_menu_selection()){
+  while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
     //page is article we start with
     //repeat for each line
@@ -260,6 +261,7 @@ void news_page_tick ()
     }
     oled_paint_progress_bar(page,page_max); 
     oled_paint_line_selection (line_select);
+    menu_tick ();
     OrbitOledUpdate ();
     int new_line_select = get_page_action (line_select, 4); 
     if(new_line_select != line_select){
@@ -288,18 +290,32 @@ void news_page_tick ()
         line_select = new_line_select;
       }
     }
-    menu_tick ();
   }
 }
 
+long last_pot_move_time = millis(); 
+double last_pot_val = read_pot_percent(); 
+long top_bar_time_thresh = 800; 
 void menu_tick () 
 {
-  led_gradient(3000,0);
+  if(fabs(last_pot_val - read_pot_percent()) > 0.01){
+    Serial.println(last_pot_val);
+    Serial.println(read_pot_percent());
+    last_pot_val = read_pot_percent(); 
+    last_pot_move_time = millis(); 
+  }
+  if(millis() - last_pot_move_time < top_bar_time_thresh){
+    oled_paint_top_progress_bar (read_pot_percent(), 1,NUM_MENUS);
+    led_encode_percent(read_pot_percent(), 1.0);
+  }
+  else{
+    led_gradient(3000,0);
+  }
 }
 
 
 //update the weather page 
-void weather_page_tick () 
+void weather_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
   long init_time = millis(); 
@@ -316,7 +332,7 @@ void weather_page_tick ()
   int_to_char_arr (temp, tmp_size, g_weather.high);
   strcat(second_line, temp); 
   strcat (second_line, "C"); 
-  while(init_selection == get_menu_selection()){
+  while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
     orbit_moveto_line (1);
     marquee_text (g_weather.location, init_time, init_delay); 
@@ -324,8 +340,8 @@ void weather_page_tick ()
     marquee_text (second_line,init_time,init_delay);
     orbit_moveto_line (3);
     marquee_text(g_weather.description, init_time, init_delay); 
-    OrbitOledUpdate ();
     menu_tick ();
+    OrbitOledUpdate ();
   }  
 }
 
@@ -334,13 +350,13 @@ void display_menu ()
   switch(curr_menu)
   {
     case 0:
-      intro_page_tick ();
+      intro_page_tick (0);
       break;
     case 1:
-      weather_page_tick ();
+      weather_page_tick (1);
       break;
     case 2:
-      news_page_tick ();
+      news_page_tick (2);
       break;
     default:
       OrbitOledClearBuffer ();

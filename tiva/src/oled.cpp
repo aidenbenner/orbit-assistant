@@ -101,9 +101,29 @@ void oled_paint_progress_bar (double current, double max)
     OrbitOledDrawRect(SCREEN_LENGTH - 1, current / max * SCREEN_HEIGHT);
 }
 
+
+void oled_paint_top_progress_bar(double current, double max, int divisions)
+{
+    int y = 0; 
+    OrbitOledMoveTo(0,y);
+    OrbitOledDrawRect(current / max * SCREEN_LENGTH, y);
+    OrbitOledSetDrawMode(modOledXor);
+    for(int i = 0; i<divisions; i++){ 
+      int x = i / (double)divisions * SCREEN_LENGTH;
+      OrbitOledMoveTo(x,y);
+      OrbitOledDrawRect(x+1, y);
+    }
+    OrbitOledSetDrawMode(modOledSet);
+}
+
+void oled_paint_top_progress_bar (double current, double max)
+{
+    oled_paint_top_progress_bar(current,max,0);
+}
+
 void oled_paint_line_selection (int current_line)
 {
-  int selection_height = 8; 
+  int selection_height = 6; 
   int selection_width = 1; 
   switch(current_line) 
   {

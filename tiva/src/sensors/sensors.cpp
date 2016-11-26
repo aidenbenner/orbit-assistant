@@ -57,7 +57,22 @@ double read_pot_percent ()
 
 void set_led (int port, int val)
 {
-  analogWrite(P_LEDS[port],val);
+  analogWrite(P_LEDS[NUM_LEDS - 1 - port],val);
+}
+
+//encode
+void led_encode_percent (double min, double max)
+{
+  //255 * 4 
+  double equiv = min/max * 255 * 4; 
+  int full_leds = equiv / 255; 
+  int next_val = (int)equiv % 255; 
+  for(int i = 0; i<full_leds; i++)
+    set_led(i,255);
+  set_led(full_leds,next_val);
+  for(int i = full_leds + 1; i<NUM_LEDS; i++){
+    set_led(i,0);
+  }
 }
 
 void set_all_led (int val)

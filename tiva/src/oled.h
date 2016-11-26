@@ -33,6 +33,8 @@ void marquee_text (char * input, unsigned long init_time, unsigned long init_del
 void marquee_text (const char * input, unsigned long init_time, unsigned  long init_delay);
 void display_user_prompt (const char * display_string);
 void oled_paint_progress_bar (double current, double max);
+void oled_paint_top_progress_bar (double current, double max);
+void oled_paint_top_progress_bar (double current, double max, int divisions);
 void orbit_moveto_line (int line);
 int get_line_y(int line); 
 
