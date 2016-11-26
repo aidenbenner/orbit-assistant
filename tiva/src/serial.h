@@ -14,9 +14,11 @@ typedef struct Date{
 
 typedef struct Weather{
   int temp;
+  int high;
   double humidity;
   double precip;
   char * description; 
+  char * location; 
   long init_time; 
 } Weather;
 
