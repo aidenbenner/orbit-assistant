@@ -52,6 +52,11 @@ const int PAGE_LINE_SHIFT = 1;
 char line_buffer [CHARS_PER_LINE + 1] = " ";
 char user_name[] = "Lawrence";
 
+//placeholder for testing 
+//this populates g_date and g_weather with dummy data
+void test_data() 
+{
+}
 
 void menu_init ()
 {
@@ -487,12 +492,6 @@ void calendar_page_tick ()
   OrbitOledUpdate ();
 }
 
-char weather_buffer[24] = "10C and snowy"; 
-
-void fill_weather_buffer () 
-{
-
-}
 
 
 void weather_page_tick () 
@@ -503,7 +502,7 @@ void weather_page_tick ()
     orbit_moveto_line(1);
     orbit_display_centered_string ("Weather ");
     orbit_moveto_line(2);
-    orbit_display_centered_string (weather_buffer);
+    orbit_display_centered_string (g_weather.description);
     orbit_moveto_line(3);
     OrbitOledUpdate ();
   }  
