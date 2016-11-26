@@ -9,6 +9,7 @@
 #include "sensors/accel.h"
 #include "sensors/sensors.h"
 #include "oled.h"
+#include "utils.h"
 #include "serial.h"
 
 //pre declarations 
@@ -16,11 +17,14 @@ void debug_display_long_string_with_pot () ;
 void orbit_moveto_line (int line); 
 void display_menu ();
 void menu_refresh ();
+void display_user_prompt (const char * display_string);
 int get_line_y (int line);
 
 //external  
 extern int xchOledMax; // defined in OrbitOled.c
 extern int ychOledMax; // defined in OrbitOled.c
+extern int xchOledCur;
+extern int ychOledCur;
 
 //contsants 
 const int SCREEN_LENGTH = 132;
@@ -48,18 +52,100 @@ const int CENTERED_STR_Y = 0;
 
 const int PAGE_LINE_SHIFT = 1;
 
-//global variables
-char line_buffer [CHARS_PER_LINE + 1] = " ";
-char user_name[] = "Lawrence";
+char blankScreen[] = {
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+
+//local variables
+static char line_buffer [CHARS_PER_LINE + 1] = " ";
+static char user_name[] = "Lawrence";
+static int _orbit_y = 0;   
+static int _orbit_x = 0;
 
 //placeholder for testing 
 //this populates g_date and g_weather with dummy data
 void test_data() 
 {
+  g_date.year  = 2016;
+  g_date.month = 11;
+  g_date.day   = 25;
+  g_date.minute = 20;
+  g_date.hour   = 12;
+  g_date.second = 39;
+  g_date.init_time = millis();
+  
+  g_weather.temp = 20; 
+  g_weather.high = 29; 
+  g_weather.description = "Cloudy and a chance of thunder."; 
+  g_weather.location = "Waterloo, ON"; 
 }
 
 void menu_init ()
 {
+  test_data() ;
   //update the data from pi  
   menu_refresh ();
 }
@@ -89,10 +175,6 @@ char * send_line_to_buffer (char * input, int line)
 }
 
 void print_string_page ( char * input, int page){
-  //int length = strlen(input);
-  //int lines = length / CHARS_PER_LINE; 
-  //int max_pages = lines / PAGE_LINE_SHIFT; 
-
   int curr_line = page * PAGE_LINE_SHIFT; 
   OrbitOledClearBuffer(); 
   send_line_to_buffer (input,curr_line);
@@ -151,8 +233,6 @@ void paginate_view_string (char * input) {
   }
 }
 
-
-
 char selection_string [] = "abcdefghijklmnopqrstuvwxyz .@       ";
 char upper_selection_string [] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ .@       ";
 
@@ -160,7 +240,6 @@ void orbit_display_linewrap (const char * input)
 {
   OrbitOledDrawString(selection_string);
 }
-
 
 const int insert_time_thresh = 200;  //ms
 const int max_user_input = CHARS_PER_LINE * 3; 
@@ -245,19 +324,17 @@ void get_user_input ()
       break;
     }
     delay(50);
-    /**
-      Serial.print("Curr selection | ");
-      Serial.print(curr_selection);
-      Serial.print(" xcord | ");
-      Serial.print(xCord1);
-      Serial.print(" ycord | ");
-      Serial.print(yCord1);
-      Serial.print(" curr_col | ");
-      Serial.print(curr_col);
-      Serial.print(" curr_line | ");
-      Serial.println(curr_line); **/
   }
 }
+
+void get_user_name ()
+{
+  display_user_prompt ("Please enter your name"); 
+  get_user_input (); 
+  strcpy(user_name, user_input);
+}
+
+
 
 //need to have orbit x cordinate as 0 
 void orbit_display_centered_string (const char * str) 
@@ -280,29 +357,52 @@ void orbit_display_centered_string (const char * str)
   OrbitOledDrawString (output);
 }
 
-const int MS_PER_CHAR = 100; 
-void marquee_text (char * input, int step)
+
+const int MS_PER_CHAR = 250; 
+
+void marquee_text (char * input, long init_time, long init_delay)
 {
+  //check if two short
   int length = strlen(input); 
+  if(length < CHARS_PER_LINE)
+  {
+    //don't have to marquee
+    OrbitOledDrawString(input);
+    return;
+  }
   int time_ms = length * MS_PER_CHAR;
-  for(int k = 0; k<100; k++){
-    for(int i = CHARS_PER_LINE; i>=0; i--)
-    {
-      OrbitOledClearBuffer ();
-      OrbitOledMoveTo (i * CHAR_WIDTH,0); 
-      OrbitOledDrawString(input);
-      OrbitOledUpdate (); 
-      delay(time_ms / length);
-    }
-    //come back in the other side.. draw 1 character at a time
-    for(int i = 0; i<length - 1; i++)
-    {
-      OrbitOledClearBuffer ();
-      OrbitOledMoveTo (0,0); 
-      OrbitOledDrawString(input + i);
-      OrbitOledUpdate (); 
-      delay(time_ms/length);
-    }
+  //figure out what percent we are 
+  if(init_time + init_delay > millis()) 
+  {
+    OrbitOledMoveTo (0, _orbit_y); 
+    OrbitOledDrawString(input);
+    return;
+  }
+
+
+  init_time += init_delay;
+  double percent_done = 100 * fmod(millis() - init_time, time_ms) / time_ms;
+  int delay_percent = 10;
+  int right_percent = 40;
+  int left_percent = 40; 
+  if(percent_done < delay_percent){
+    OrbitOledMoveTo (0, _orbit_y); 
+    OrbitOledDrawString(input);
+    return;
+  }
+  else if(percent_done < left_percent + delay_percent) 
+  { //showing first half at 50 all characters should be off the screen
+    int chars_showing = length * (percent_done - delay_percent) / (left_percent); 
+    OrbitOledMoveTo (0,_orbit_y); 
+    OrbitOledDrawString(input + chars_showing);
+    //going to need to figure out a different way. 
+  }
+  else 
+  {
+    int chars_showing = length - length * (percent_done - (left_percent + delay_percent))  / right_percent; 
+    int print_location = chars_showing ;
+    OrbitOledMoveTo (chars_showing * CHAR_WIDTH, _orbit_y); 
+    OrbitOledDrawString(input);
   }
 }
 
@@ -331,17 +431,28 @@ void display_test ()
   display_menu ();
 }
 
+void orbit_wipe_line (int line)
+{
+
+}
+
 void orbit_moveto_line (int line)
 {
   switch(line) 
   {
     case 1:
+      _orbit_y = LINE_1_Y;
+      _orbit_x = LINE_1_X;
       OrbitOledMoveTo (LINE_1_X,LINE_1_Y);
       break;
     case 2:
+      _orbit_y = LINE_2_Y;
+      _orbit_x = LINE_2_X;
       OrbitOledMoveTo (LINE_2_X,LINE_2_Y);
       break;
     case 3:
+      _orbit_y = LINE_3_Y;
+      _orbit_x = LINE_3_X;
       OrbitOledMoveTo (LINE_3_X,LINE_3_Y);
       break;
   }
@@ -425,7 +536,7 @@ void fill_date_buffer ()
     if(i == 2 || i == 5) continue;
     date_buffer[i] += 48;
   }
-
+  date_buffer[10] = 0; 
 }
 
 
@@ -456,7 +567,11 @@ void intro_page_tick ()
   int init_selection = get_menu_selection();
   int scroll = 0; 
   struct Date * curr_date = serial_get_date (); 
+  int init_switch = read_switch(0); 
   while(init_selection == get_menu_selection()){
+    if(init_switch != read_switch(0)){
+      get_user_name ();
+    }
     fill_time_buffer();
     OrbitOledClearBuffer ();
     if(scroll < 1){
@@ -488,22 +603,33 @@ void calendar_page_tick ()
 {
   OrbitOledClearBuffer ();
   orbit_moveto_line(1);
-  orbit_display_centered_string ("Weather ");
+  orbit_display_centered_string ("Menu 3");
   OrbitOledUpdate ();
 }
-
-
 
 void weather_page_tick () 
 {
   int init_selection = get_menu_selection();
+  long init_time = millis(); 
+  long init_delay= 500; 
+
+
+  int tmp_size = 20;
+  char temp[tmp_size]; 
+  char second_line[30]; 
+  int_to_char_arr (temp, tmp_size, g_weather.temp);
+  strcpy (second_line, temp); 
+  strcat (second_line, "C High "); 
+  int_to_char_arr (temp, tmp_size, g_weather.high);
+  strcat(second_line, temp); 
   while(init_selection == get_menu_selection()){
     OrbitOledClearBuffer ();
-    orbit_moveto_line(1);
-    orbit_display_centered_string ("Weather ");
-    orbit_moveto_line(2);
-    orbit_display_centered_string (g_weather.description);
-    orbit_moveto_line(3);
+    orbit_moveto_line (1);
+    marquee_text (g_weather.location, init_time, init_delay); 
+    orbit_moveto_line (2);
+    marquee_text (second_line,init_time,init_delay);
+    orbit_moveto_line (3);
+    marquee_text(g_weather.description, init_time, init_delay); 
     OrbitOledUpdate ();
   }  
 }
@@ -519,10 +645,10 @@ void display_menu ()
       intro_page_tick ();
       break;
     case 1:
-      calendar_page_tick ();
+      weather_page_tick ();
       break;
     case 2:
-      weather_page_tick ();
+      calendar_page_tick ();
       break;
   }
   curr_menu = get_menu_selection();
