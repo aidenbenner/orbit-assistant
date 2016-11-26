@@ -30,7 +30,6 @@ char * get_user_input ();
 void oled_paint_line_selection (int current_line);
 void orbit_display_centered_string (const char * str);
 void marquee_text (char * input, unsigned long init_time, unsigned long init_delay);
-void marquee_text (const char * input, unsigned long init_time, unsigned  long init_delay);
 void display_user_prompt (const char * display_string);
 void oled_paint_progress_bar (double current, double max);
 void oled_paint_top_progress_bar (double current, double max);

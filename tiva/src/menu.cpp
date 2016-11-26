@@ -19,7 +19,6 @@ void orbit_moveto_line (int line);
 void display_menu ();
 void menu_refresh ();
 void menu_tick ();
-void display_user_prompt (const char * display_string);
 int get_line_y (int line);
 
 //external  

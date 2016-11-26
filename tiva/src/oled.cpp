@@ -51,7 +51,7 @@ void oled_init ()
   OrbitOledClearBuffer ();
   OrbitOledSetFillPattern (OrbitOledGetStdPattern (iptnSolid));
   OrbitOledSetDrawMode (modOledSet);
-  OrbitOledSetCharUpdate(0);
+  OrbitOledSetCharUpdate (0);
 }
 
 static char line_buffer [CHARS_PER_LINE + 1] = " ";
@@ -255,7 +255,7 @@ char * get_user_input ()
       { 
         if(input_index > 0)
           user_input_buffer[--input_index] = ' ';  
-        last_insert_time = millis() - 100; 
+        last_insert_time = millis() - 25; 
       }  
     }
     if(read_switch(0) != init_break_toggle) {
@@ -332,13 +332,14 @@ void marquee_text (char * input, unsigned long init_time, unsigned long init_del
     return;
   }
 }
-
+/**
 void marquee_text (const char * input, long init_time, long init_delay){
   marquee_text((char *)input, init_time,init_delay);
-}
+} **/ 
 
 void display_user_prompt (const char * display_string)
 {
+  Serial.println("hit");
   OrbitOledClearBuffer ();
   char confirmation[] = "okay (btn 1)"; 
 
@@ -347,13 +348,14 @@ void display_user_prompt (const char * display_string)
   while(true){
     OrbitOledClearBuffer(); 
     orbit_moveto_line(2);
-    marquee_text (display_string, init_time, delay_ms); 
+    marquee_text ((char *)display_string, init_time, delay_ms); 
     orbit_moveto_line(3);
     orbit_display_centered_string (confirmation); 
     if(read_button(1)){
       break;
     }
     OrbitOledUpdate ();
+    delay(5);
   }
 }
 
