@@ -104,7 +104,7 @@ void oled_paint_progress_bar (double current, double max)
 void oled_paint_line_selection (int current_line)
 {
   int selection_height = 8; 
-  int selection_width = 3; 
+  int selection_width = 1; 
   switch(current_line) 
   {
     case 1:

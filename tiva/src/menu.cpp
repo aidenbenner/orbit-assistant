@@ -57,11 +57,11 @@ struct Post reddit_news[NUM_REDDIT_POSTS];
 
 //DUMMY DATA TEST ONLY
 
-  char dummy_headline_1[] = "Edward Snowden's bid to guarantee that he would not be extradited to the US if he visited Norway has been rejected by the Norwedgian supreme court.";
-  char dummy_headline_2[] = "Catholic Church Finally Apologizes for Its Role in the Deaths of Over 800K During Rwandan Genocide";
-  char dummy_headline_3[] = "Top scientist who discovered Litvinenko poison 'stabbed himself to death with two knives' after trip to Russia";
-  char dummy_headline_4[] = "Uganda is shutting down schools funded by Mark Zuckerberg, Bill Gates ";
-  char dummy_headline_5[] = "Google is warning prominent journalists and professors that nation-sponsored hackers have recently targeted their accounts, according to reports delivered in the past 24 hours over social media";
+  char dummy_headline_1[] = "1. Edward Snowden's bid to guarantee that he would not be extradited to the US if he visited Norway has been rejected by the Norwedgian supreme court.";
+  char dummy_headline_2[] = "2. Catholic Church Finally Apologizes for Its Role in the Deaths of Over 800K During Rwandan Genocide";
+  char dummy_headline_3[] = "3. Top scientist who discovered Litvinenko poison 'stabbed himself to death with two knives' after trip to Russia";
+  char dummy_headline_4[] = "4. Uganda is shutting down schools funded by Mark Zuckerberg, Bill Gates ";
+  char dummy_headline_5[] = "5. Google is warning prominent journalists and professors that nation-sponsored hackers have recently targeted their accounts, according to reports delivered in the past 24 hours over social media";
 void test_data() 
 {
   g_date.year  = 2016;
@@ -236,29 +236,57 @@ void news_page_tick ()
   long time_selected_init = millis(); 
   long marquee_delay = 200; 
 
-  int scroll = 0; 
   int line_select = 1; 
-  int article = 0;  //0th article = menu 
+  int page = 0 ; 
+  int page_max = NUM_REDDIT_POSTS; 
   while(init_selection == get_menu_selection()){
     OrbitOledClearBuffer ();
-    for(int i = 1; i<=NUM_REDDIT_POSTS; i++){
-      //lines indexed at 1
+    //page is article we start with
+    //repeat for each line
+    Serial.println(line_select);
+    for(int i = 1; i<=3; i++){
       orbit_moveto_line(i);
+      if(0 == page + i - 1){
+        OrbitOledDrawString ("News: ");
+        continue;
+      }
       if(line_select == i){
-        marquee_text (reddit_news[i - 1].title, time_selected_init, marquee_delay); 
+        marquee_text (reddit_news[page +  i - 2].title, time_selected_init, marquee_delay); 
       }
       else{
         //kind of a hack
-        OrbitOledDrawString (reddit_news[i - 1].title);
+        OrbitOledDrawString (reddit_news[page + i - 2].title);
       }
     }
-    oled_paint_progress_bar(scroll,NUM_REDDIT_POSTS); 
+    oled_paint_progress_bar(page,page_max); 
     oled_paint_line_selection (line_select);
     OrbitOledUpdate ();
     int new_line_select = get_page_action (line_select, 4); 
     if(new_line_select != line_select){
-      time_selected_init = millis(); 
-      line_select = new_line_select;
+      if(new_line_select >= 4){
+        Serial.println("HIT");
+        if(page < page_max)
+        {  
+          page++;
+          line_select--;
+        }
+        new_line_select = 3;
+        line_select = 3; 
+        time_selected_init = millis(); 
+      }
+      if(new_line_select <= 0){
+        if(page > 0){
+          page--; 
+          line_select++; 
+        } 
+        line_select = 1; 
+        new_line_select = 1;
+        time_selected_init = millis(); 
+      }
+      else{
+        time_selected_init = millis(); 
+        line_select = new_line_select;
+      }
     }
     menu_tick ();
   }
