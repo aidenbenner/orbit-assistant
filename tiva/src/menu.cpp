@@ -57,11 +57,11 @@ struct Post reddit_news[NUM_REDDIT_POSTS];
 
 //DUMMY DATA TEST ONLY
 
-  char dummy_headline_1[] = "1. Edward Snowden's bid to guarantee that he would not be extradited to the US if he visited Norway has been rejected by the Norwedgian supreme court.";
-  char dummy_headline_2[] = "2. Catholic Church Finally Apologizes for Its Role in the Deaths of Over 800K During Rwandan Genocide";
-  char dummy_headline_3[] = "3. Top scientist who discovered Litvinenko poison 'stabbed himself to death with two knives' after trip to Russia";
-  char dummy_headline_4[] = "4. Uganda is shutting down schools funded by Mark Zuckerberg, Bill Gates ";
-  char dummy_headline_5[] = "5. Google is warning prominent journalists and professors that nation-sponsored hackers have recently targeted their accounts, according to reports delivered in the past 24 hours over social media";
+char dummy_headline_1[] = "1. Edward Snowden's bid to guarantee that he would not be extradited to the US if he visited Norway has been rejected by the Norwedgian supreme court.";
+char dummy_headline_2[] = "2. Catholic Church Finally Apologizes for Its Role in the Deaths of Over 800K During Rwandan Genocide";
+char dummy_headline_3[] = "3. Top scientist who discovered Litvinenko poison 'stabbed himself to death with two knives' after trip to Russia";
+char dummy_headline_4[] = "4. Uganda is shutting down schools funded by Mark Zuckerberg, Bill Gates ";
+char dummy_headline_5[] = "5. Google is warning prominent journalists and professors that nation-sponsored hackers have recently targeted their accounts, according to reports delivered in the past 24 hours over social media";
 void test_data() 
 {
   g_date.year  = 2016;
@@ -71,7 +71,7 @@ void test_data()
   g_date.hour   = 12;
   g_date.second = 39;
   g_date.init_time = millis();
-  
+
   g_weather.temp = 20; 
   g_weather.high = 29; 
   g_weather.description = "Cloudy and a chance of thunder."; 
@@ -229,6 +229,18 @@ void intro_page_tick (int selection)
   }
 }
 
+void view_news_page (int selection, Post article) 
+{
+  int tog = read_switch(0); 
+  int page = 0; 
+  int len = strlen(article.title); 
+  while(tog == read_switch(0) && selection == get_menu_selection())
+  {
+    print_string_page(article.title, page); 
+    page = get_page_action (page, len / CHARS_PER_LINE - 2); 
+  }
+}
+
 void news_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
@@ -239,6 +251,7 @@ void news_page_tick (int selection)
   int line_select = 1; 
   int page = 0 ; 
   int page_max = NUM_REDDIT_POSTS; 
+  int init_toggle = read_switch(0);;  
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
     //page is article we start with
@@ -262,6 +275,9 @@ void news_page_tick (int selection)
     oled_paint_line_selection (line_select);
     menu_tick ();
     OrbitOledUpdate ();
+    if(init_toggle != read_switch(0) ){
+      view_news_page (selection, reddit_news[page + line_select - 2]);
+    }
     int new_line_select = get_page_action (line_select, 4); 
     if(new_line_select != line_select){
       if(new_line_select >= 4){

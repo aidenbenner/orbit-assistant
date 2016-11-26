@@ -27,6 +27,7 @@ extern const int PAGE_LINE_SHIFT;
 
 
 char * get_user_input ();
+void print_string_page ( char * input, int page); 
 void oled_paint_line_selection (int current_line);
 void orbit_display_centered_string (const char * str);
 void marquee_text (char * input, unsigned long init_time, unsigned long init_delay);
