@@ -46,5 +46,3 @@ void int_to_char_arr (char * buffer, int len, int num)
   //need to null terminate
   buffer[total + 1] = 0; 
 }
-
-

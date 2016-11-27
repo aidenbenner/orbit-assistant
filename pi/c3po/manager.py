@@ -2,6 +2,7 @@ from threading import Thread
 from serial import Serial
 from c3po.handler import handle
 import time
+import logging
 
 
 def parse_input(line, valid_events):
@@ -10,10 +11,11 @@ def parse_input(line, valid_events):
     Raise error if event not valid
     return event_type and payload
     """
-    event, payload = line.decode('utf8').rstrip('\r\n').split(':')
+    payloads = line.decode('utf8').rstrip('\r\n').split(':')
+    event = payloads[0]
     if event not in valid_events:
         raise Exception("Invalid event!")
-    return event, payload
+    return event, payloads[1:]
 
 
 class SerialManager(Thread):
@@ -29,6 +31,7 @@ class SerialManager(Thread):
 
     def run(self):
         s = self.serial
+        print('Start polling on serial')
 
         while True:
             # If no buffer in serial, skip the rest
@@ -36,12 +39,11 @@ class SerialManager(Thread):
                 continue
 
             line = s.readline()
-            print ("Input from tiva: " + line)
+            print('Input from tiva: ' + line)
 
             try:
                 event, options = parse_input(line, self.valid_events)
             except Exception as e:
-                print(line)
-                print(e)
+                logging.error(e)
                 continue
             handle(event, options, self.serial)

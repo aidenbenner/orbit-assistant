@@ -11,7 +11,7 @@
 #include "sensors/sensors.h"
 #include "oled.h"
 #include "utils.h"
-#include "serial.h"
+#include "state.h"
 
 //pre declarations 
 void debug_display_long_string_with_pot () ;
@@ -76,19 +76,6 @@ char dummy_headline_5[] = "5. Google is warning prominent journalists and profes
 
 void test_data() 
 {
-  g_date.year  = 2016;
-  g_date.month = 11;
-  g_date.day   = 25;
-  g_date.minute = 20;
-  g_date.hour   = 12;
-  g_date.second = 39;
-  g_date.init_time = millis();
-
-  g_weather.temp = 20; 
-  g_weather.high = 29; 
-  g_weather.description = "Cloudy and a chance of thunder."; 
-  g_weather.location = "Waterloo, ON"; 
-
   reddit_news[0].title = dummy_headline_1;
   reddit_news[1].title = dummy_headline_2;
   reddit_news[2].title = dummy_headline_3;
@@ -147,7 +134,7 @@ void get_user_name ()
 
 void update_time () 
 {
-  struct Date * curr_date = serial_get_date (); 
+  Date * curr_date = g_date;
   long delta_t = millis() - curr_date->init_time;
   if(delta_t < 1000) return;
   //convert to seconds 
@@ -173,7 +160,7 @@ int get_menu_selection ()
 
 void fill_time_buffer () 
 {
-  struct Date * curr_date = serial_get_date (); 
+  Date * curr_date = g_date;
   update_time(); 
   time_buffer[0] = curr_date->hour / 10;  
   time_buffer[1] = curr_date->hour % 10;  
@@ -191,7 +178,7 @@ void fill_time_buffer ()
 
 void fill_date_buffer () 
 {
-  struct Date * curr_date = serial_get_date (); 
+  struct Date * curr_date = g_date;
   update_time(); 
   date_buffer[0] = curr_date->day / 10;  
   date_buffer[1] = curr_date->day % 10;  
@@ -236,7 +223,7 @@ void intro_page_tick (int selection)
 {
   int init_selection = get_menu_selection();
   int scroll = 0; 
-  struct Date * curr_date = serial_get_date (); 
+  Date * curr_date = g_date;
   int init_switch = read_switch(0); 
   while(selection == get_menu_selection()){
     if(init_switch != read_switch(0)){
@@ -446,20 +433,18 @@ void weather_page_tick (int selection)
   char temp[tmp_size]; 
   //need to convert our weather struct into a printable string
   char second_line[30]; 
-  int_to_char_arr (temp, tmp_size, g_weather.temp);
-  strcpy (second_line, temp); 
+  strcpy (second_line, g_weather->temp);
   strcat (second_line, "C High "); 
-  int_to_char_arr (temp, tmp_size, g_weather.high);
-  strcat(second_line, temp); 
+  strcat(second_line, g_weather->temp_max);
   strcat (second_line, "C"); 
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
     orbit_moveto_line (1);
-    marquee_text (g_weather.location, init_time, init_delay); 
+    marquee_text (g_user->city, init_time, init_delay); 
     orbit_moveto_line (2);
     marquee_text (second_line,init_time,init_delay);
     orbit_moveto_line (3);
-    marquee_text(g_weather.description, init_time, init_delay); 
+    marquee_text(g_weather->description, init_time, init_delay); 
     menu_tick ();
     OrbitOledUpdate ();
   }  
