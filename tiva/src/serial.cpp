@@ -1,72 +1,45 @@
 #include <Arduino.h>
 #include <Energia.h>
-#include "sensors/accel.h"
+#include <string.h> 
+#include <stdlib.h>
 #include "serial.h"
 #include "utils.h"
-#include <string> 
 
-//pre definitions 
-//TODO FIX PRINT_DEBUG PRINT
-void serial_print_debug (const char * output);
-void serial_print_err (const char output[]);
-void serial_print_err (long output);
-
-typedef struct Date Date; 
-typedef struct Weather Weather; 
-Date g_date;
-Weather g_weather;
-
-const int NUM_NEWS_POSTS = 10; 
-Post news[NUM_NEWS_POSTS]; 
-
-Date * serial_get_date () 
-{
-  return & g_date; 
-}
-
-Weather * serial_get_weather () 
-{
-  return & g_weather; 
-}
+const int BUFFER_MAX = 256;
 
 void serial_init ()
 {
   Serial.begin (9600);
-  serial_update_date (); 
   //serial_update_weather (); 
 }
 
-static const int SERIAL_BUFF_SIZE = 500;  
-static char serial_buffer[SERIAL_BUFF_SIZE]; 
 //reads next line into serial_buffer
-void serial_read_line () 
+char * serial_readline (void)
 {
-  char c = ' '; 
-  char last = ' ';
-  int bufInd = 0; 
-  while(c != '\n')
+  char *buffer = (char *) malloc (sizeof (char) * BUFFER_MAX);
+  memset (buffer, '\0', BUFFER_MAX);
+
+  char c;
+  int count = 0;
+
+  while (count < BUFFER_MAX - 1)
   {
-    if(bufInd >= SERIAL_BUFF_SIZE)
-    {
-      serial_print_err("Serial buffer overflow");
-      break;
-    }
-    if(Serial.available())
+    if (Serial.available ())
     {
       c = Serial.read();
-      if(c == '\r' && last == '\n')
-      {
-        serial_buffer[bufInd] = '\0'; 
+
+      if (c == '\n')
         break;
-      }
-      serial_buffer[bufInd] = c; 
-      bufInd++; 
+
+      buffer[count] = c;
+      count ++;
     }
-    last = c; 
-  } 
-  delay(20); 
+  }
+
+  return buffer;
 }
 
+/*
 void serial_read_line_after_char (char n) 
 {
   char c = n+1; 
@@ -77,14 +50,6 @@ void serial_read_line_after_char (char n)
   } while(c != n);
   return serial_read_line();
 }
-
-/** this was for the old json api
-aJsonObject * get_next_payload () 
-{
-  serial_read_line();
-  aJsonObject * json_root = aJson.parse(serial_buffer);
-  aJsonObject * time_str  = aJson.getObjectItem(jsonObject, "payload");
-} **/ 
 
 void serial_update_date () 
 {
@@ -109,39 +74,4 @@ void serial_update_date ()
   Serial.println(g_date.hour);
   Serial.println(g_date.second);
 }
-
-void serial_update_weather () 
-{
-  Serial.println ("GET_WEATHER:NULL");
-  serial_read_line ();
-  //parse at
-}
-
-void serial_update_news () 
-{
-  Serial.println ("GET_WEATHER:NULL");
-  //thinking we could memcpy then replace delimeters with \0 
-  //then have pointers to the start of each post. 
-  serial_read_line ();
-  //parse at
-}
-
-void serial_print_err (long output)
-{
-  Serial.print("PRINT_ERROR:"); 
-  Serial.println(output); 
-}
-
-void serial_print_err (const char output[])
-{
-  Serial.print("PRINT_ERROR:"); 
-  Serial.println(output); 
-}
-
-void serial_print_debug (const char output[])
-{
-  Serial.print("PRINT_DEBUG:" ); 
-  Serial.println(output); 
-}
-
-
+*/
