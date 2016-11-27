@@ -8,12 +8,12 @@ typedef struct User {
 } User;
   
 typedef struct Date {
-  char *second;
-  char *minute;
-  char *hour;
-  char *day; 
-  char *month;
-  char *year; 
+  int second;
+  int minute;
+  int hour;
+  int day; 
+  int month;
+  int year; 
   long init_time;
 } Date;
 
@@ -40,5 +40,7 @@ extern Weather *g_weather;
 User * update_user (User *user);
 Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
+
+void update_all (void);
 
 #endif
