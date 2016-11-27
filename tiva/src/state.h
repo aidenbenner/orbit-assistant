@@ -1,24 +1,30 @@
 #ifndef STATE_H
 #define STATE_H
+
+typedef struct User {
+  char *name;
+  char *city;
+  char *country;
+} User;
   
 typedef struct Date {
-  int minute;
-  int hour;
-  int second; 
-  int day; 
-  int month;
-  int year; 
-  long init_time; 
+  char *second;
+  char *minute;
+  char *hour;
+  char *day; 
+  char *month;
+  char *year; 
 } Date;
 
 typedef struct Weather {
-  int temp;
-  int high;
-  double humidity;
-  double precip;
-  char * description; 
-  char * location; 
-  long init_time; 
+  char *temp;
+  char *temp_max;
+  char *temp_min;
+  char *pressure;
+  char *humidity;
+  char *weather;
+  char *description; 
+  char *location; 
 } Weather;
 
 typedef struct Post {
@@ -26,9 +32,12 @@ typedef struct Post {
   int size; 
 } Post;
 
+extern User *g_user;
 extern Date *g_date;
 extern Weather *g_weather;
 
+User * update_user (User *user);
+Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
 
 #endif

@@ -1,12 +1,11 @@
-name = 'Lawrence Pan'
-city = 'Waterloo'
-country = 'CA'
+info = {'name': 'Lawrence Pan',
+        'city': 'Waterloo',
+        'country': 'CA'}
 
 # Valid events
-GET_NAME = 'GET_NAME'
-GET_TIME = 'GET_TIME'
+GET_INFO = 'GET_INFO'
+GET_DATE = 'GET_DATE'
 GET_WEATHER = 'GET_WEATHER'
 GET_NEWS = 'GET_NEWS'
-PRINT_DEBUG = 'PRINT_DEBUG'
 
-valid_events = [GET_NAME, GET_TIME, GET_WEATHER, GET_NEWS, PRINT_DEBUG]
+valid_events = [GET_INFO, GET_DATE, GET_WEATHER, GET_NEWS]

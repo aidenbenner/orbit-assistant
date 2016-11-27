@@ -7,14 +7,24 @@ from c3po import config, api
 from c3po.utils import format_data
 
 
+def format_date():
+    now = datetime.now()
+    return {'second': now.second,
+            'minute': now.minute,
+            'hour': now.hour,
+            'day': now.day,
+            'month': now.month,
+            'year': now.year}
+
+
 def fetch(event_name, options):
     """
     Determine what operation to perform according to event_name
     """
-    if event_name == config.GET_NAME:
-        return config.name
-    elif event_name == config.GET_TIME:
-        return datetime.now().strftime('%Y/%m/%d:%H:%M:%S')
+    if event_name == config.GET_INFO:
+        return config.info
+    elif event_name == config.GET_DATE:
+        return format_date()
     elif event_name == config.GET_WEATHER:
         return api.get_weather(options)
     elif event_name == config.GET_NEWS:
