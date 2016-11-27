@@ -115,11 +115,6 @@ void test_data()
   g_mail[3].subject = "Crowdmark Midterm Results"; 
   g_mail[3].body    = "You scored 0/100 on all midterms :( "; 
 
-  g_mail[3].to = "aiden.benner@gmail.com"; 
-  g_mail[3].from = "crowdmark@crowdmark.com"; 
-  g_mail[3].subject = "Crowdmark Midterm Results"; 
-  g_mail[3].body    = "You scored 0/100 on all midterms :( "; 
-
   g_mail[4].to = "aiden.benner@gmail.com"; 
   g_mail[4].from = "spambot@gmail.com"; 
   g_mail[4].subject = "Nigerian Prince "; 
@@ -286,40 +281,67 @@ void view_news_page (int selection, Post article)
   }
 }
 
-void view_mail_message (int selection, Mail message) 
+void view_mail_message (int selection, Mail * message) 
 {
   int tog = read_switch(0); 
   int page = 0; 
   //this is so slow... each cat is O(n) I don't think it's that big a deal 
-  char out_str[1000] ;
-  strcpy(out_str, " From: "); 
-  strcat(out_str, message.from); 
-  strcat(out_str, " To: "); 
-  strcat(out_str, message.to); 
-  strcat(out_str, " Subject: "); 
-  strcat(out_str, message.subject); 
-  strcat(out_str, " Body: "); 
-  strcat(out_str, message.body); 
-  int body_len = strlen(message.body); 
-
+  int body_len = strlen(message->body); 
   long init_time = millis();
   long delay = 500; 
-  int line_select = 0; 
+  int line_select = 1; 
   int top_line = 0; 
+  char line_buf[CHARS_PER_LINE * 5]; 
+  int page_max = body_len / CHARS_PER_LINE + 3; 
+  long time_selected_init = millis(); 
   while(tog == read_switch(0) && selection == get_menu_selection())
   {
     OrbitOledClearBuffer(); 
-    marquee_text_if_selected (strcat ("From: ", message.from),init_time,delay, 
-        line_select == 1, 1 - top_line);
-    marquee_text_if_selected (strcat ("To: ", message.to),init_time,delay, 
-        line_select == 2, 2 - top_line);
-    marquee_text_if_selected (strcat ("Subject: ", message.subject), init_time,delay, 
-        line_select == 3, 3 - top_line);
+    Serial.println(strcat("From", message->from));
 
-    oled_draw_multiline_string (message.body, top_line, 4); 
-    top_line = get_page_action (top_line, 3 + body_len / CHARS_PER_LINE - 2); 
+    strcpy(line_buf, "From: ");
+    strcat(line_buf, message->from);
+    marquee_text_if_selected (line_buf ,init_time,delay, line_select == 1, 1 - page);
+
+    strcpy(line_buf, "To: ");
+    strcat(line_buf, message->to);
+    marquee_text_if_selected (line_buf,init_time,delay, line_select == 2, 2 - page);
+
+    strcpy(line_buf, "Subject: ");
+    strcat(line_buf, message->subject);
+    marquee_text_if_selected (line_buf, init_time,delay, line_select == 3, 3 - page);
+
+    oled_draw_multiline_string (message->body, 4 - page); 
+    //page = get_page_action (page, 3 + body_len / CHARS_PER_LINE - 2); 
     oled_paint_line_selection (line_select);
     //page min = 0
+
+    int new_line_select = get_page_action (line_select, 4); 
+    if(new_line_select != line_select){
+      if(new_line_select >= 4){
+        if(page < page_max)
+        {  
+          page++;
+          line_select--;
+        }
+        new_line_select = 3;
+        line_select = 3; 
+        time_selected_init = millis(); 
+      }
+      if(new_line_select <= 0){
+        if(page > 0){
+          page--; 
+          line_select++; 
+        } 
+        line_select = 1; 
+        new_line_select = 1;
+        time_selected_init = millis(); 
+      }
+      else{
+        time_selected_init = millis(); 
+        line_select = new_line_select;
+      }
+    }
     OrbitOledUpdate(); 
   }
 }
@@ -493,7 +515,7 @@ void mail_page_tick(int selection)
     OrbitOledUpdate ();
     if(init_toggle != read_switch(0))
     {
-      view_mail_message (selection, g_mail[page + line_select - 2]);
+      view_mail_message (selection, &g_mail[page + line_select - 2]);
       g_mail[page + line_select - 2].read = true; 
       NUM_UNREAD_MAIL--;
     }

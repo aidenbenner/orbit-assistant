@@ -95,19 +95,18 @@ void print_string_page ( char * input, int page)
   OrbitOledUpdate ();
 }
 
-void oled_draw_multiline_string(char * input, int current_line, int start_line)
+void oled_draw_multiline_string(char * input, int current_line)
 {
-  int draw_line = start_line - current_line; 
   int len = strlen(input); 
   int num_input_lines = len / CHARS_PER_LINE + 1; 
   //drawing current_line, n + 1 , n + 2
   //see what lines overlap with start_line
 
-  for(int i = draw_line; i<3; i++)
+  for(int i = current_line; i<3; i++)
   {
     if(i < 1) continue;
-    int current_str_line = draw_line + i; 
     orbit_moveto_line (i);
+    int current_str_line = i - current_line; 
     send_line_to_buffer (input,current_str_line);
     OrbitOledDrawString (line_buffer);
   }
@@ -381,7 +380,6 @@ void marquee_text_if_selected (char * input, unsigned long init_time, unsigned l
 
 void display_user_prompt (const char * display_string)
 {
-  Serial.println("hit");
   OrbitOledClearBuffer ();
   char confirmation[] = "okay (btn 1)"; 
 

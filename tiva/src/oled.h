@@ -37,7 +37,7 @@ void display_user_prompt (const char * display_string);
 void oled_paint_progress_bar (double current, double max);
 void oled_paint_top_progress_bar (double current, double max);
 void oled_paint_top_progress_bar (double current, double max, int divisions);
-void oled_draw_multiline_string(char * input, int current_line, int start_line);
+void oled_draw_multiline_string(char * input, int current_line);
 void orbit_moveto_line (int line);
 int get_line_y(int line); 
 
