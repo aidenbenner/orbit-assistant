@@ -29,18 +29,29 @@ typedef struct Weather {
 } Weather;
 
 typedef struct Post {
-  char * title;  
-  int size; 
+  char *title;
+  char *text;
 } Post;
+
+typedef struct Posts {
+  Post *post;
+  int number;
+} Posts;
 
 extern User *g_user;
 extern Date *g_date;
 extern Weather *g_weather;
+extern Posts *g_posts;
 
 User * update_user (User *user);
 Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
+Posts * update_posts (Posts *posts);
 
-void update_all (void);
+void refresh_user (void);
+void refresh_date (void);
+void refresh_weather (void);
+void refresh_posts (void);
+void refresh_all (void);
 
 #endif

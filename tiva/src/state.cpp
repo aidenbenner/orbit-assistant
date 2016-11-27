@@ -9,12 +9,34 @@
 User *g_user;
 Date *g_date;
 Weather *g_weather;
+Posts *g_posts;
 
-void update_all (void)
+void refresh_user (void)
 {
   g_user = update_user (g_user);
+}
+
+void refresh_date (void)
+{
   g_date = update_date (g_date);
+}
+
+void refresh_weather (void)
+{
   g_weather = update_weather (g_weather);
+}
+
+void refresh_posts (void)
+{
+  g_posts = update_posts (g_posts);
+}
+
+void refresh_all (void)
+{
+  refresh_user ();
+  refresh_date ();
+  refresh_weather ();
+  refresh_posts ();
 }
 
 User * update_user (User *user)
@@ -118,4 +140,22 @@ Weather * update_weather (Weather *weather)
   free (buffer);
 
   return weather;
+}
+
+Posts * update_posts (Posts *posts)
+{
+  if (posts)
+  {
+    for (int i = 0; i < posts->number; i ++)
+      free (posts->post);
+    free (posts);
+  }
+
+  Serial.println ("GET_NEWS:worldnews:10");
+  char *buffer = serial_readline ();
+
+  Serial.println (buffer);
+
+  posts = (Posts *) malloc (sizeof (Posts));
+  return posts;
 }
