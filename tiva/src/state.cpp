@@ -60,6 +60,7 @@ Date * update_date (Date *date)
   date->day = get_value ("day", buffer, jb);
   date->month = get_value ("month", buffer, jb);
   date->year = get_value ("year", buffer, jb);
+  date->init_time = millis();
 
   delete_json_buffer (jb);
   free (buffer);

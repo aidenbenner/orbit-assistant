@@ -14,6 +14,7 @@ typedef struct Date {
   char *day; 
   char *month;
   char *year; 
+  long init_time;
 } Date;
 
 typedef struct Weather {
