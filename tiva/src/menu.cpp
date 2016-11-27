@@ -83,9 +83,7 @@ void test_data()
   reddit_news[3].title = dummy_headline_4;
   reddit_news[4].title = dummy_headline_5;
 
-  g_mail[0].to = "aiden.benner@gmail.com"; 
-  g_mail[0].from = "lpan@gmail.com"; 
-  g_mail[0].subject = "Tiva project"; 
+  g_mail[0].to = "aiden.benner@gmail.com"; g_mail[0].from = "lpan@gmail.com"; g_mail[0].subject = "Tiva project"; 
   g_mail[0].body    = "how is it going ? "; 
 
   g_mail[1].to = "aiden.benner@gmail.com"; 
@@ -156,7 +154,9 @@ void update_time ()
 int get_menu_selection () 
 {
   double pot = read_pot_percent(); 
-  return (pot * NUM_MENUS);
+  int out = (pot * NUM_MENUS);
+  if(out == NUM_MENUS) out--;
+  return out;
 }
 
 void fill_time_buffer () 
@@ -568,8 +568,6 @@ void display_menu ()
       mail_page_tick (3);
       break;
     default:
-      OrbitOledClearBuffer ();
-      OrbitOledUpdate ();
       break;
   }
   menu_tick ();
