@@ -28,6 +28,15 @@ typedef struct Weather {
   char *location; 
 } Weather;
 
+typedef struct Mail {
+  char * to;
+  char * from;
+  char * subject;
+  char * body;
+  bool read;
+  Date received;
+} Mail;
+
 typedef struct Post {
   char * title;  
   int size; 

@@ -43,9 +43,9 @@ static char user_name[] = "Lawrence";
 static char time_buffer[CHARS_PER_LINE];
 static char date_buffer[CHARS_PER_LINE];
 static long last_menu_switch_time = millis ();
+static long last_page_action_time = millis ();
 static int curr_menu = 0;
 
-static long last_page_action_time = millis ();
 
 //placeholder for testing
 //this populates g_date and g_weather with dummy data
@@ -53,14 +53,6 @@ static long last_page_action_time = millis ();
 const int NUM_REDDIT_POSTS = 5;
 struct Post reddit_news[NUM_REDDIT_POSTS];
 
-typedef struct Mail {
-  char * to;
-  char * from;
-  char * subject;
-  char * body;
-  bool read;
-  Date received;
-} Mail;
 
 //will need to dynamically allocate this so we can have more messages
 int NUM_UNREAD_MAIL = 5;
