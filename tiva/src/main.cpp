@@ -1,15 +1,13 @@
 #include <Energia.h>
-#include <Arduino.h>
-#include <OrbitOled.h>
-#include <OrbitOledChar.h>
-#include <OrbitOledGrph.h>
-#include <FillPat.h>
+#include <stdlib.h>
 #include "sensors/sensors.h"
 #include "sensors/accel.h"
 #include "oled.h"
 #include "serial.h"
 #include "Wire_Util.h"
 #include "menu.h"
+#include "parser.h"
+#include "state.h"
 
 #define print(x) Serial.println("x")
 
@@ -20,6 +18,7 @@ void device_init ()
   oled_init ();
   accel_init ();
   init_sensors (); 
+  update_all ();
   menu_init (); 
   led_left_right (255, true);
   led_left_right (255, false);
@@ -35,4 +34,3 @@ void loop ()
   display_menu (); 
   delay(5);
 }
-
