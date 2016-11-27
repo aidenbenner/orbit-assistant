@@ -95,6 +95,24 @@ void print_string_page ( char * input, int page)
   OrbitOledUpdate ();
 }
 
+void oled_draw_multiline_string(char * input, int current_line, int start_line)
+{
+  int draw_line = start_line - current_line; 
+  int len = strlen(input); 
+  int num_input_lines = len / CHARS_PER_LINE + 1; 
+  //drawing current_line, n + 1 , n + 2
+  //see what lines overlap with start_line
+
+  for(int i = draw_line; i<3; i++)
+  {
+    if(i < 1) continue;
+    int current_str_line = draw_line + i; 
+    orbit_moveto_line (i);
+    send_line_to_buffer (input,current_str_line);
+    OrbitOledDrawString (line_buffer);
+  }
+} 
+
 void oled_paint_progress_bar (double current, double max)
 {
     OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
@@ -336,6 +354,30 @@ void marquee_text (char * input, unsigned long init_time, unsigned long init_del
 void marquee_text (const char * input, long init_time, long init_delay){
   marquee_text((char *)input, init_time,init_delay);
 } **/ 
+
+
+void marquee_text_if_selected (char * input, unsigned long init_time, unsigned long init_delay, bool selected){
+  if(selected){
+    marquee_text(input,init_time,init_delay);
+  }
+  else{
+    OrbitOledDrawString(input); 
+  }
+}
+
+void marquee_text_if_selected (char * input, unsigned long init_time, unsigned long init_delay, bool selected, int line){
+  //don't draw if we are out of bounds
+  if(line <= 0 || line > 3){
+    return; 
+  }
+  orbit_moveto_line (line); 
+  if(selected){
+    marquee_text(input,init_time,init_delay);
+  }
+  else{
+    OrbitOledDrawString(input); 
+  }
+}
 
 void display_user_prompt (const char * display_string)
 {

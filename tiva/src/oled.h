@@ -31,10 +31,13 @@ void print_string_page ( char * input, int page);
 void oled_paint_line_selection (int current_line);
 void orbit_display_centered_string (const char * str);
 void marquee_text (char * input, unsigned long init_time, unsigned long init_delay);
+void marquee_text_if_selected (char * input, unsigned long init_time, unsigned long init_delay, bool selected);
+void marquee_text_if_selected (char * input, unsigned long init_time, unsigned long init_delay, bool selected, int line);
 void display_user_prompt (const char * display_string);
 void oled_paint_progress_bar (double current, double max);
 void oled_paint_top_progress_bar (double current, double max);
 void oled_paint_top_progress_bar (double current, double max, int divisions);
+void oled_draw_multiline_string(char * input, int current_line, int start_line);
 void orbit_moveto_line (int line);
 int get_line_y(int line); 
 
