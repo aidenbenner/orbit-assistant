@@ -11,8 +11,12 @@ def to_celcius(temp):
     return int(temp - 273.15)
 
 
-def get_weather(city, country_code):
+def get_weather(options):
     """
+    eg. GET_WEATHER:ca:Waterloo
+    options:
+        - country_code
+        - city_name
     Get weather data from openweathermap.org
     return:
         - weather (eg. "Clear")
@@ -23,6 +27,9 @@ def get_weather(city, country_code):
         - pressure (in Torr, eg. 1018)
         - humidity (in %, eg. 89)
     """
+    country_code = options[0]
+    city = options[1]
+
     params = {'q': city + ',' + country_code, 'appid': api_key}
     result = get(base_url, params).json()
 

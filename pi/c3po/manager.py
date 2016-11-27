@@ -11,10 +11,11 @@ def parse_input(line, valid_events):
     Raise error if event not valid
     return event_type and payload
     """
-    event, payload = line.decode('utf8').rstrip('\r\n').split(':')
+    payloads = line.decode('utf8').rstrip('\r\n').split(':')
+    event = payloads[0]
     if event not in valid_events:
         raise Exception("Invalid event!")
-    return event, payload
+    return event, payloads[1:]
 
 
 class SerialManager(Thread):
