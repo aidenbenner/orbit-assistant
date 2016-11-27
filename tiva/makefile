@@ -1,5 +1,5 @@
 all:
-	pio run --target upload 
+	pio run -v --target upload 
 
 serial:
 	pio run --target upload 
