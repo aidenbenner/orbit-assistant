@@ -8,7 +8,7 @@ def to_celcius(temp):
     """
     From Kelvin to Celcius
     """
-    return temp - 273.15
+    return int(temp - 273.15)
 
 
 def get_weather(city, country_code):

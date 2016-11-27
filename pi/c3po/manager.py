@@ -2,6 +2,7 @@ from threading import Thread
 from serial import Serial
 from c3po.handler import handle
 import time
+import logging
 
 
 def parse_input(line, valid_events):
@@ -29,7 +30,7 @@ class SerialManager(Thread):
 
     def run(self):
         s = self.serial
-        print("Start polling on serial")
+        print('Start polling on serial')
 
         while True:
             # If no buffer in serial, skip the rest
@@ -42,7 +43,6 @@ class SerialManager(Thread):
             try:
                 event, options = parse_input(line, self.valid_events)
             except Exception as e:
-                print(line)
-                print(e)
+                logging.error(e)
                 continue
             handle(event, options, self.serial)

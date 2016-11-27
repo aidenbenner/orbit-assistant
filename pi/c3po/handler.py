@@ -18,7 +18,7 @@ def fetch(event_name, options):
     elif event_name == config.GET_WEATHER:
         return api.get_weather(config.city, config.country)
     elif event_name == config.GET_NEWS:
-        return api.get_news(int(options)); 
+        return api.get_news(int(options))
     elif event_name == config.PRINT_DEBUG:
         return options
 
@@ -28,7 +28,4 @@ def handle(event_name, options, serial):
     Get info then write to serial
     """
     payload = fetch(event_name, options)
-    event = event_name.split('_')[-1]
-    print(event)
-    print(payload)
-    serial.write(format_data(event, payload))
+    serial.write(format_data(payload))
