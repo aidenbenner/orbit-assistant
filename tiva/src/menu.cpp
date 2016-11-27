@@ -76,6 +76,7 @@ char dummy_headline_5[] = "5. Google is warning prominent journalists and profes
 
 void test_data() 
 {
+
   reddit_news[0].title = dummy_headline_1;
   reddit_news[1].title = dummy_headline_2;
   reddit_news[2].title = dummy_headline_3;
@@ -284,7 +285,6 @@ void view_mail_message (int selection, Mail * message)
   while(tog == read_switch(0) && selection == get_menu_selection())
   {
     OrbitOledClearBuffer(); 
-    Serial.println(strcat("From", message->from));
 
     strcpy(line_buf, "From: ");
     strcat(line_buf, message->from);
@@ -305,6 +305,7 @@ void view_mail_message (int selection, Mail * message)
 
     int new_line_select = get_page_action (line_select, 4); 
     if(new_line_select != line_select){
+      init_time = millis();
       if(new_line_select >= 4){
         if(page < page_max)
         {  
@@ -406,8 +407,6 @@ long top_bar_time_thresh = 800;
 void menu_tick () 
 {
   if(fabs(last_pot_val - read_pot_percent()) > 0.01){
-    Serial.println(last_pot_val);
-    Serial.println(read_pot_percent());
     last_pot_val = read_pot_percent(); 
     last_pot_move_time = millis(); 
   }

@@ -10,13 +10,13 @@
 const int SCREEN_LENGTH = 132;
 const int SCREEN_HEIGHT = 32;
 const unsigned int INPUT_TIME_THRESH = 300;  //ms
-const int DELAY_MS = 50;  //ms
+const int DELAY_MS = 50;  //m
 
 const double CHAR_HEIGHT = 7; 
-const double CHAR_WIDTH = 8; 
+const double CHAR_WIDTH = 8;
 
 const int LINE_HEIGHT = 10; 
-const int LINE_TOP_OFFSET = 3; 
+const int LINE_TOP_OFFSET = 3;
 
 const int LINE_1_Y = LINE_TOP_OFFSET; 
 const int LINE_1_X = 0; 
@@ -102,40 +102,43 @@ void oled_draw_multiline_string(char * input, int current_line)
   //drawing current_line, n + 1 , n + 2
   //see what lines overlap with start_line
 
-  for(int i = current_line; i<3; i++)
+  for(int i = current_line; i<=3; i++)
   {
     if(i < 1) continue;
     orbit_moveto_line (i);
     int current_str_line = i - current_line; 
-    send_line_to_buffer (input,current_str_line);
-    OrbitOledDrawString (line_buffer);
+    if(current_str_line < num_input_lines){
+      send_line_to_buffer (input,current_str_line);
+      OrbitOledDrawString (line_buffer);
+
+    }
   }
 } 
 
 void oled_paint_progress_bar (double current, double max)
 {
-    OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
-    OrbitOledDrawRect(SCREEN_LENGTH - 1, current / max * SCREEN_HEIGHT);
+  OrbitOledMoveTo(SCREEN_LENGTH- 1,0);
+  OrbitOledDrawRect(SCREEN_LENGTH - 1, current / max * SCREEN_HEIGHT);
 }
 
 
 void oled_paint_top_progress_bar(double current, double max, int divisions)
 {
-    int y = 0; 
-    OrbitOledMoveTo(0,y);
-    OrbitOledDrawRect(current / max * SCREEN_LENGTH, y);
-    OrbitOledSetDrawMode(modOledXor);
-    for(int i = 0; i<divisions; i++){ 
-      int x = i / (double)divisions * SCREEN_LENGTH;
-      OrbitOledMoveTo(x,y);
-      OrbitOledDrawRect(x+1, y);
-    }
-    OrbitOledSetDrawMode(modOledSet);
+  int y = 0; 
+  OrbitOledMoveTo(0,y);
+  OrbitOledDrawRect(current / max * SCREEN_LENGTH, y);
+  OrbitOledSetDrawMode(modOledXor);
+  for(int i = 0; i<divisions; i++){ 
+    int x = i / (double)divisions * SCREEN_LENGTH;
+    OrbitOledMoveTo(x,y);
+    OrbitOledDrawRect(x+1, y);
+  }
+  OrbitOledSetDrawMode(modOledSet);
 }
 
 void oled_paint_top_progress_bar (double current, double max)
 {
-    oled_paint_top_progress_bar(current,max,0);
+  oled_paint_top_progress_bar(current,max,0);
 }
 
 void oled_paint_line_selection (int current_line)
@@ -153,8 +156,7 @@ void oled_paint_line_selection (int current_line)
       OrbitOledDrawRect(selection_width, LINE_2_Y + selection_height);
       break;
     case 3:
-      OrbitOledMoveTo(0,LINE_3_Y);
-      OrbitOledDrawRect(selection_width, LINE_3_Y + selection_height);
+      OrbitOledMoveTo(0,LINE_3_Y); OrbitOledDrawRect(selection_width, LINE_3_Y + selection_height);
       break;
   }
 }
@@ -350,9 +352,9 @@ void marquee_text (char * input, unsigned long init_time, unsigned long init_del
   }
 }
 /**
-void marquee_text (const char * input, long init_time, long init_delay){
+  void marquee_text (const char * input, long init_time, long init_delay){
   marquee_text((char *)input, init_time,init_delay);
-} **/ 
+  } **/ 
 
 
 void marquee_text_if_selected (char * input, unsigned long init_time, unsigned long init_delay, bool selected){
