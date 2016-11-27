@@ -272,10 +272,10 @@ void view_news_page (int selection, Post article)
 void reply_message(int selection, Mail * message) 
 {
   int tog = read_switch(0); 
-  display_user_prompt("Enter your reply: ");
+  display_user_prompt("Enter a reply ");
+  char reply_buffer[1000]; 
   while(tog == read_switch(0) && selection == get_menu_selection()){
-
-
+    strcpy(reply_buffer, get_user_input()); 
   }
 }
 
