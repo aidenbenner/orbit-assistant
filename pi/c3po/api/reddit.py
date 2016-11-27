@@ -1,27 +1,27 @@
 import praw
-import requests
-import requests.auth 
-import json 
 
-my_user_agent = "linux:SE101_project:v1.0"
-reddit = praw.Reddit(user_agent=my_user_agent)
-
-"""
-returns a string of post titles on r/worldnews pipe delimeted 
-"""
-def get_news (num_posts) 
-    out_str = ""; 
-    posts = reddit.get_subreddit('worldnews').get_hot(limit=num_posts)
-    for post in posts: 
-        out_str += post.title + "|" 
-    return out_str 
+user_agent = 'linux:dank_memes:v4.20'
+reddit = praw.Reddit(user_agent=user_agent)
 
 
+def get_news(options):
+    """
+    options:
+        - name of the subreddit. eg. worldnews
+        - number of posts. eg. 10
 
+    returns: eg.
+        [
+            {title: 'Mr. Goose died', text: 'jk'}
+            # ...
+        ]
+    """
+    subreddit, number_posts = options
+    sr = reddit.get_subreddit(subreddit)
 
+    result = []
 
+    for post in sr.get_hot(limit=num_posts):
+        result.append({'title': post.title, 'text': post.selftext})
 
-
-
-
-
+    return result
