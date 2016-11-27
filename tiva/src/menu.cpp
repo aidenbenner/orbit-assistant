@@ -35,8 +35,6 @@ extern const int DELAY_MS;  //ms
 extern const double CHAR_HEIGHT; 
 extern const double CHAR_WIDTH; 
 
-
-
 //constants
 static const int NUM_MENUS = 4; 
 
@@ -55,13 +53,27 @@ static long last_page_action_time = millis();
 const int NUM_REDDIT_POSTS = 5; 
 struct Post reddit_news[NUM_REDDIT_POSTS]; 
 
-//DUMMY DATA TEST ONLY
+typedef struct Mail {
+  char * to;
+  char * from;
+  char * subject;
+  char * body;
+  bool read;
+  Date received;
+} Mail; 
 
+//will need to dynamically allocate this so we can have more messages
+int NUM_UNREAD_MAIL = 5; 
+const int NUM_MAIL_MESSAGES = 5; 
+Mail g_mail[NUM_MAIL_MESSAGES]; 
+
+//DUMMY DATA TEST ONLY
 char dummy_headline_1[] = "1. Edward Snowden's bid to guarantee that he would not be extradited to the US if he visited Norway has been rejected by the Norwedgian supreme court.";
 char dummy_headline_2[] = "2. Catholic Church Finally Apologizes for Its Role in the Deaths of Over 800K During Rwandan Genocide";
 char dummy_headline_3[] = "3. Top scientist who discovered Litvinenko poison 'stabbed himself to death with two knives' after trip to Russia";
 char dummy_headline_4[] = "4. Uganda is shutting down schools funded by Mark Zuckerberg, Bill Gates ";
 char dummy_headline_5[] = "5. Google is warning prominent journalists and professors that nation-sponsored hackers have recently targeted their accounts, according to reports delivered in the past 24 hours over social media";
+
 void test_data() 
 {
   g_date.year  = 2016;
@@ -83,6 +95,39 @@ void test_data()
   reddit_news[3].title = dummy_headline_4;
   reddit_news[4].title = dummy_headline_5;
 
+  g_mail[0].to = "aiden.benner@gmail.com"; 
+  g_mail[0].from = "lpan@gmail.com"; 
+  g_mail[0].subject = "Tiva project"; 
+  g_mail[0].body    = "how is it going ? "; 
+
+  g_mail[1].to = "aiden.benner@gmail.com"; 
+  g_mail[1].from = "amazon@gmail.com"; 
+  g_mail[1].subject = "Cyber Monday "; 
+  g_mail[1].body    = "Get our cyber monday deals! "; 
+
+  g_mail[2].to = "aiden.benner@gmail.com"; 
+  g_mail[2].from = "Google "; 
+  g_mail[2].subject = "Password reset"; 
+  g_mail[2].body    = "Did you reset your password recently? "; 
+
+  g_mail[3].to = "aiden.benner@gmail.com"; 
+  g_mail[3].from = "crowdmark@crowdmark.com"; 
+  g_mail[3].subject = "Crowdmark Midterm Results"; 
+  g_mail[3].body    = "You scored 0/100 on all midterms :( "; 
+
+  g_mail[3].to = "aiden.benner@gmail.com"; 
+  g_mail[3].from = "crowdmark@crowdmark.com"; 
+  g_mail[3].subject = "Crowdmark Midterm Results"; 
+  g_mail[3].body    = "You scored 0/100 on all midterms :( "; 
+
+  g_mail[4].to = "aiden.benner@gmail.com"; 
+  g_mail[4].from = "spambot@gmail.com"; 
+  g_mail[4].subject = "Nigerian Prince "; 
+  g_mail[4].body    = "Pls send money "; 
+
+  for(int i = 0; i<4; i++){
+    g_mail[i].read = false; 
+  }
 }
 
 void menu_init ()
@@ -241,12 +286,50 @@ void view_news_page (int selection, Post article)
   }
 }
 
+void view_mail_message (int selection, Mail message) 
+{
+  int tog = read_switch(0); 
+  int page = 0; 
+  //this is so slow... each cat is O(n) I don't think it's that big a deal 
+  char out_str[1000] ;
+  strcpy(out_str, " From: "); 
+  strcat(out_str, message.from); 
+  strcat(out_str, " To: "); 
+  strcat(out_str, message.to); 
+  strcat(out_str, " Subject: "); 
+  strcat(out_str, message.subject); 
+  strcat(out_str, " Body: "); 
+  strcat(out_str, message.body); 
+  int body_len = strlen(message.body); 
+
+  long init_time = millis();
+  long delay = 500; 
+  int line_select = 0; 
+  int top_line = 0; 
+  while(tog == read_switch(0) && selection == get_menu_selection())
+  {
+    OrbitOledClearBuffer(); 
+    marquee_text_if_selected (strcat ("From: ", message.from),init_time,delay, 
+        line_select == 1, 1 - top_line);
+    marquee_text_if_selected (strcat ("To: ", message.to),init_time,delay, 
+        line_select == 2, 2 - top_line);
+    marquee_text_if_selected (strcat ("Subject: ", message.subject), init_time,delay, 
+        line_select == 3, 3 - top_line);
+
+    oled_draw_multiline_string (message.body, top_line, 4); 
+    top_line = get_page_action (top_line, 3 + body_len / CHARS_PER_LINE - 2); 
+    oled_paint_line_selection (line_select);
+    //page min = 0
+    OrbitOledUpdate(); 
+  }
+}
+
 void news_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
   long init_time = millis(); 
   long time_selected_init = millis(); 
-  long marquee_delay = 200; 
+  long marquee_delay = 500; 
 
   int line_select = 1; 
   int page = 0 ; 
@@ -256,18 +339,19 @@ void news_page_tick (int selection)
     OrbitOledClearBuffer ();
     //page is article we start with
     //repeat for each line
-    Serial.println(line_select);
     for(int i = 1; i<=3; i++){
       orbit_moveto_line(i);
       if(0 == page + i - 1){
         OrbitOledDrawString ("News: ");
         continue;
       }
+      if(page + i - 2 > NUM_REDDIT_POSTS){
+        continue;
+      }
       if(line_select == i){
         marquee_text (reddit_news[page +  i - 2].title, time_selected_init, marquee_delay); 
       }
       else{
-        //kind of a hack
         OrbitOledDrawString (reddit_news[page + i - 2].title);
       }
     }
@@ -281,7 +365,6 @@ void news_page_tick (int selection)
     int new_line_select = get_page_action (line_select, 4); 
     if(new_line_select != line_select){
       if(new_line_select >= 4){
-        Serial.println("HIT");
         if(page < page_max)
         {  
           page++;
@@ -336,7 +419,7 @@ void weather_page_tick (int selection)
   long init_time = millis(); 
 
   //TODO maybe get rid of these magic numbers
-  long init_delay= 500; 
+  long init_delay= 700; 
   int tmp_size = 20;
   char temp[tmp_size]; 
   //need to convert our weather struct into a printable string
@@ -360,6 +443,94 @@ void weather_page_tick (int selection)
   }  
 }
 
+
+void mail_page_tick(int selection) 
+{
+  int init_selection = get_menu_selection();
+  long init_time = millis(); 
+  long time_selected_init = millis(); 
+  long marquee_delay = 500; 
+
+  int line_select = 1; 
+  int page = 0 ; 
+  int page_max = NUM_MAIL_MESSAGES; 
+  int init_toggle = read_switch(0); 
+  while(selection == get_menu_selection())
+  {
+    OrbitOledClearBuffer ();
+    //page is article we start with
+    //repeat for each line
+    char buffer[300]; 
+    for(int i = 1; i<=3; i++)
+    {
+      orbit_moveto_line(i);
+      if(0 == page + i - 1)
+      {
+        sprintf(buffer, "Mail: Unread %d", NUM_UNREAD_MAIL);
+        OrbitOledDrawString (buffer);
+        continue;
+      }
+      if(page + i - 2 >= NUM_MAIL_MESSAGES){
+        continue;
+      }
+      strcpy(buffer, g_mail[page+i-2].read ? "- " : "o ");
+      strcat(buffer, g_mail[page+i-2].subject);
+      strcat(buffer, " | ");
+      strcat(buffer, g_mail[page+i-2].from);
+      //draw checkbox 
+      if(line_select == i)
+      {
+        marquee_text (buffer, time_selected_init, marquee_delay); 
+      }
+      else
+      {
+        OrbitOledDrawString (buffer);
+      }
+    }
+    oled_paint_progress_bar(page,page_max); 
+    oled_paint_line_selection (line_select);
+    menu_tick ();
+    OrbitOledUpdate ();
+    if(init_toggle != read_switch(0))
+    {
+      view_mail_message (selection, g_mail[page + line_select - 2]);
+      g_mail[page + line_select - 2].read = true; 
+      NUM_UNREAD_MAIL--;
+    }
+    int new_line_select = get_page_action (line_select, 4); 
+    if(new_line_select != line_select)
+    {
+      if(new_line_select >= 4)
+      {
+        if(page < page_max)
+        {  
+          page++;
+          line_select--;
+        }
+        new_line_select = 3;
+        line_select = 3; 
+        time_selected_init = millis(); 
+      }
+      if(new_line_select <= 0)
+      {
+        if(page > 0)
+        {
+          page--; 
+          line_select++; 
+        } 
+        line_select = 1; 
+        new_line_select = 1;
+        time_selected_init = millis(); 
+      }
+      else
+      {
+        time_selected_init = millis(); 
+        line_select = new_line_select;
+      }
+    }
+  }
+}
+
 void display_menu ()
 {
   switch(curr_menu)
@@ -372,6 +543,9 @@ void display_menu ()
       break;
     case 2:
       news_page_tick (2);
+      break;
+    case 3:
+      mail_page_tick (3);
       break;
     default:
       OrbitOledClearBuffer ();
