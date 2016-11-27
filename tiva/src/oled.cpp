@@ -386,11 +386,34 @@ void display_user_prompt (const char * display_string)
   char confirmation[] = "okay (btn 1)"; 
 
   long init_time = millis(); 
-  long delay_ms = 500; 
+  long delay_ms = 800; 
   while(true){
     OrbitOledClearBuffer(); 
-    orbit_moveto_line(2);
+    orbit_moveto_line(1);
     marquee_text ((char *)display_string, init_time, delay_ms); 
+    orbit_moveto_line(3);
+    orbit_display_centered_string (confirmation); 
+    if(read_button(1)){
+      break;
+    }
+    OrbitOledUpdate ();
+    delay(5);
+  }
+}
+
+void display_user_prompt (const char * display_line_1, const char * display_line_2)
+{
+  OrbitOledClearBuffer ();
+  char confirmation[] = "okay (btn 1)"; 
+
+  long init_time = millis(); 
+  long delay_ms = 800; 
+  while(true){
+    OrbitOledClearBuffer(); 
+    orbit_moveto_line(1);
+    marquee_text ((char *)display_line_1, init_time, delay_ms); 
+    orbit_moveto_line(1);
+    marquee_text ((char *)display_line_2, init_time, delay_ms); 
     orbit_moveto_line(3);
     orbit_display_centered_string (confirmation); 
     if(read_button(1)){

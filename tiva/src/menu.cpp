@@ -269,9 +269,20 @@ void view_news_page (int selection, Post article)
   }
 }
 
+void reply_message(int selection, Mail * message) 
+{
+  int tog = read_switch(0); 
+  display_user_prompt("Enter your reply: ");
+  while(tog == read_switch(0) && selection == get_menu_selection()){
+
+
+  }
+}
+
 void view_mail_message (int selection, Mail * message) 
 {
   int tog = read_switch(0); 
+  int tog2 = read_switch(1); 
   int page = 0; 
   //this is so slow... each cat is O(n) I don't think it's that big a deal 
   int body_len = strlen(message->body); 
@@ -285,6 +296,9 @@ void view_mail_message (int selection, Mail * message)
   while(tog == read_switch(0) && selection == get_menu_selection())
   {
     OrbitOledClearBuffer(); 
+    if(tog2 != read_switch(1)){
+      reply_message(selection, message); 
+    }
 
     strcpy(line_buf, "From: ");
     strcat(line_buf, message->from);
