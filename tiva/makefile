@@ -7,4 +7,4 @@ serial:
 
 pi:
 	pio run --target upload 
-	python ../pi/entry.py
+	python ../pi/entry.py /dev/ttyACM1

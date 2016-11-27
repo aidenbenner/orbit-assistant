@@ -52,7 +52,9 @@ int read_pot ()
 double read_pot_percent ()
 {
   //going to assume pot is linear 
-  return ((double)POT_MIN + read_pot()) / (double)POT_MAX;
+  double out = ((double)POT_MIN + read_pot()) / (double)POT_MAX;
+  if(out > 1.0) out = 1.0;
+  return out;
 }
 
 void set_led (int port, int val)
@@ -64,12 +66,14 @@ void set_led (int port, int val)
 void led_encode_percent (double min, double max)
 {
   //255 * 4 
-  double equiv = min/max * 255 * 4; 
+  double equiv = min / max * 255 * 4; 
   int full_leds = equiv / 255; 
   int next_val = (int)equiv % 255; 
   for(int i = 0; i<full_leds; i++)
     set_led(i,255);
-  set_led(full_leds,next_val);
+  if(full_leds != NUM_LEDS){
+    set_led(full_leds,next_val);
+  }
   for(int i = full_leds + 1; i<NUM_LEDS; i++){
     set_led(i,0);
   }
