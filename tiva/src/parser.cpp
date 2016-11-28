@@ -51,8 +51,9 @@ char * get_value (char *key, const char *json_string, json_buffer *jb)
   return "NULL";
 }
 
-// if the key corresponds to an array
-// num_keys -> number of keys in the object
+// if the initial object is an array
+// eg. "[{lmao: 'xxx'}, {lmao: 'yyy'}]"
+// num_keys -> number of keys in the object, as for the above case it is one
 char ** get_values (char *key, const char *json_string, json_buffer *jb, int num_keys)
 {
   // number of array elements
