@@ -47,36 +47,18 @@ static int curr_menu = 0;
 
 static long last_page_action_time = millis(); 
 
-//placeholder for testing 
-//this populates g_date and g_weather with dummy data
-
-typedef struct Mail {
-  char * to;
-  char * from;
-  char * subject;
-  char * body;
-  bool read;
-  Date received;
-} Mail; 
 
 //will need to dynamically allocate this so we can have more messages
 int NUM_UNREAD_MAIL = 5; 
 const int NUM_MAIL_MESSAGES = 5; 
 Mail g_mail[NUM_MAIL_MESSAGES]; 
 
-//DUMMY DATA TEST ONLY
-char dummy_headline_1[] = "1. Edward Snowden's bid to guarantee that he would not be extradited to the US if he visited Norway has been rejected by the Norwedgian supreme court.";
-char dummy_headline_2[] = "2. Catholic Church Finally Apologizes for Its Role in the Deaths of Over 800K During Rwandan Genocide";
-char dummy_headline_3[] = "3. Top scientist who discovered Litvinenko poison 'stabbed himself to death with two knives' after trip to Russia";
-char dummy_headline_4[] = "4. Uganda is shutting down schools funded by Mark Zuckerberg, Bill Gates ";
-char dummy_headline_5[] = "5. Google is warning prominent journalists and professors that nation-sponsored hackers have recently targeted their accounts, according to reports delivered in the past 24 hours over social media";
-
 void test_data() 
 {
-  g_mail[0].to = "aiden.benner@gmail.com"; 
-  g_mail[0].from = "lpan@gmail.com"; 
-  g_mail[0].subject = "Tiva project"; 
-  g_mail[0].body    = "how is it going ? "; 
+  g_mail[0].to = "aiden.benner@gmail.com";
+  g_mail[0].from = "lpan@gmail.com";
+  g_mail[0].subject = "Tiva project";
+  g_mail[0].body    = "how is it going ? ";
 
   g_mail[1].to = "aiden.benner@gmail.com"; 
   g_mail[1].from = "amazon@gmail.com"; 
@@ -224,6 +206,7 @@ void intro_page_tick (int selection)
     }
     fill_time_buffer();
     OrbitOledClearBuffer ();
+
     if(scroll < 1){
       orbit_moveto_line(1 - scroll);
       orbit_display_centered_string (time_buffer);
@@ -235,6 +218,8 @@ void intro_page_tick (int selection)
       orbit_display_centered_string ("Good Afternoon ");
     else 
       orbit_display_centered_string ("Good Evening ");
+
+    //print name
     orbit_moveto_line (3 - scroll);
     orbit_display_centered_string (user_name);
     if(scroll == 1){
@@ -346,19 +331,19 @@ void news_page_tick (int selection)
   long init_time = millis(); 
   long time_selected_init = millis(); 
   long marquee_delay = 500; 
-
   int line_select = 1; 
   int page = 0 ; 
-  int page_max = g_jokes->number + 1;
-  int init_toggle = read_switch(0);;  
+  int page_max = g_jokes->number - 2;
+  int init_toggle = read_switch(0);  
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
     //page is article we start with
     //repeat for each line
     for(int i = 1; i<=3; i++){
+      Serial.println(page + i - 2);
       orbit_moveto_line(i);
       if(0 == page + i - 1){
-        OrbitOledDrawString ("Jokes: ");
+        OrbitOledDrawString ("News: ");
         continue;
       }
       if(page + i - 2 > g_jokes->number){
