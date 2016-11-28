@@ -1,12 +1,12 @@
 import imaplib
 import re
+import smtplib
 from email import policy
 from email.parser import Parser
-from c3po.config.email import username
 
 # TODO change password and supply from ENV
 password = 'ThankMrGoose'
-
+username = 'se101bot@gmail.com' 
 
 def trim_body(body):
     n = re.sub(r'Content-Type: text/plain; charset=UTF-8',
@@ -15,7 +15,6 @@ def trim_body(body):
                flags=re.IGNORECASE)
     n = n.replace('\n', '')
     return n
-
 
 def get_mails(options):
     """
@@ -62,8 +61,11 @@ def send_mail(options):
     """
     recipient, body = options
 
-    m = imaplib.IMAP4_SSL('imap.gmail.com')
-    m.login(username, password)
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.ehlo()
+    server.starttls()
+    server.login(username,password)
+    server.sendmail(username, recipient, body)
+    server.quit()
 
-    m.sendmail(username, recipient, body)
     return {'status': "SUCCESS"}

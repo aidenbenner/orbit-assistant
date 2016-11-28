@@ -2,7 +2,6 @@ info = {'name': 'Lawrence Pan',
         'city': 'Waterloo',
         'country': 'CA'}
 
-email = {'username': 'se101bot@gmail.com'}
 
 # Valid events
 GET_INFO = 'GET_INFO'

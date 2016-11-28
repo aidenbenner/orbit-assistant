@@ -63,11 +63,17 @@ static char line_buffer [CHARS_PER_LINE + 1] = " ";
 static char * send_line_to_buffer (char * input, int line)
 {
   int max_ind = 0;
+  int len = strlen(input); 
   for(int i = 0; i < CHARS_PER_LINE; i++ )
   {
     if(!input[i]) break;
-    line_buffer[i] = input[i + line * CHARS_PER_LINE];
-    max_ind++;
+    if(i + line * CHARS_PER_LINE >= len){
+      line_buffer[i] = ' '; 
+    }
+    else{
+      line_buffer[i] = input[i + line * CHARS_PER_LINE];
+      max_ind++;
+    }
   }
   line_buffer[max_ind] = '\0';
   return line_buffer;
@@ -80,6 +86,7 @@ static char * send_line_to_buffer (const char * input, int line) {
 void print_string_page ( char * input, int page)
 {
   int curr_line = page * PAGE_LINE_SHIFT;
+  int len = strlen(input); 
   OrbitOledClearBuffer();
   send_line_to_buffer (input,curr_line);
   OrbitOledMoveTo (LINE_1_X,LINE_1_Y);
@@ -92,6 +99,7 @@ void print_string_page ( char * input, int page)
   send_line_to_buffer (input,curr_line + 2);
   OrbitOledMoveTo (LINE_3_X,LINE_3_Y);
   OrbitOledDrawString (line_buffer);
+
   OrbitOledUpdate ();
 }
 
