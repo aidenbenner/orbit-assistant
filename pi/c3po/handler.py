@@ -28,7 +28,7 @@ def fetch(event_name, options):
     elif event_name == config.GET_WEATHER:
         return api.get_weather(options)
     elif event_name == config.GET_NEWS:
-        return api.get_news(int(options))
+        return api.get_news(options)
     elif event_name == config.PRINT_DEBUG:
         return options
 

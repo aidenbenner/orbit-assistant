@@ -14,4 +14,6 @@ void delete_json_buffer (json_buffer *jb);
 
 char * get_value (char *key, const char *json_string, json_buffer *jb);
 
+char ** get_values (char *key, const char *json_string, json_buffer *jb, int num_keys);
+
 #endif

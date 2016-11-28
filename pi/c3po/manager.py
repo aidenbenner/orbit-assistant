@@ -39,7 +39,7 @@ class SerialManager(Thread):
                 continue
 
             line = s.readline()
-            print('Input from tiva: ' + line)
+            print('Input from tiva: ' + str(line))
 
             try:
                 event, options = parse_input(line, self.valid_events)
