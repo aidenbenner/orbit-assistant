@@ -8,7 +8,7 @@
 #include "serial.h"
 #include "utils.h"
 
-static const int BUFFER_MAX = 1028;
+static const int BUFFER_MAX = 2048;
 
 void serial_init ()
 {
