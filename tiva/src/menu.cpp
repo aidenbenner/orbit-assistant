@@ -37,14 +37,14 @@ extern const double CHAR_WIDTH;
 
 //constants
 static const int NUM_MENUS = 4;
+static const int MARQUEE_DELAY = 500; //ms
 
 //local variables
-static char user_name[] = "Lawrence";
+static int curr_menu = 0;
 static char time_buffer[CHARS_PER_LINE];
 static char date_buffer[CHARS_PER_LINE];
 static long last_menu_switch_time = millis ();
 static long last_page_action_time = millis ();
-static int curr_menu = 0;
 
 
 //placeholder for testing
@@ -107,7 +107,7 @@ void test_data()
 
 void menu_init ()
 {
-  test_data() ;
+  test_data();
   //update the data from pi
   menu_refresh ();
 }
@@ -115,14 +115,14 @@ void menu_init ()
 void menu_refresh ()
 {
   //regrab data from the pi
-  //serial_update_weather ();
-  //serial_update_date ();
+  serial_update_weather ();
+  serial_update_date ();
 }
 
 void get_user_name ()
 {
   display_user_prompt ("Please enter your name");
-  strcpy (user_name, get_user_input());
+  strcpy (g_user->name, get_user_input());
 }
 
 void update_time ()
@@ -222,24 +222,30 @@ void intro_page_tick (int selection)
   Date * curr_date = g_date;
   int init_switch = read_switch (0);
   while (selection == get_menu_selection ()){
+
+    //check if switch is toggled and prompt user for input otherwise
     if (init_switch != read_switch (0)){
       get_user_name ();
     }
     fill_time_buffer ();
     OrbitOledClearBuffer ();
+
     if(scroll < 1){
       orbit_moveto_line (1 - scroll);
       orbit_display_centered_string (time_buffer);
     }
     orbit_moveto_line (2 - scroll);
+
     if (curr_date->hour < 12)
       orbit_display_centered_string ("Good Morning ");
     else if (curr_date->hour < 18)
       orbit_display_centered_string ("Good Afternoon ");
     else
       orbit_display_centered_string ("Good Evening ");
+
+    //print name
     orbit_moveto_line (3 - scroll);
-    orbit_display_centered_string (user_name);
+    orbit_display_centered_string (g_user->name);
     if (scroll == 1){
       fill_date_buffer ();
       orbit_moveto_line (4 - scroll);
@@ -283,7 +289,7 @@ void view_mail_message (int selection, Mail * message)
   //this is so slow... each cat is O(n) I don't think it's that big a deal
   int body_len = strlen (message->body);
   long init_time = millis ();
-  long delay = 500;
+  long delay = MARQUEE_DELAY;
   int line_select = 1;
   char line_buf[CHARS_PER_LINE * 5];
   int page_max = body_len / CHARS_PER_LINE + 3;
@@ -349,7 +355,7 @@ void view_mail_message (int selection, Mail * message)
 void news_page_tick (int selection)
 {
   long time_selected_init = millis ();
-  long marquee_delay = 500;
+  long marquee_delay = MARQUEE_DELAY;
 
   int line_select = 1;
   int page = 0 ;
@@ -441,7 +447,7 @@ void weather_page_tick (int selection)
   long init_time = millis ();
 
   //TODO maybe get rid of these magic numbers
-  long init_delay= 700;
+  long init_delay= MARQUEE_DELAY;
   //need to convert our weather struct into a printable string
   char second_line[30];
   strcpy (second_line, g_weather->temp);
