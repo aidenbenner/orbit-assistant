@@ -29,10 +29,10 @@ typedef struct Weather {
 } Weather;
 
 typedef struct Mail {
-  char * to;
-  char * from;
-  char * subject;
-  char * body;
+  char *to;
+  char *from;
+  char *subject;
+  char *body;
   bool read;
   Date received;
 } Mail;
@@ -48,25 +48,30 @@ typedef struct Subreddit {
   int number;
 } Subreddit;
 
+typedef struct Reddit {
+  Subreddit **subreddits;
+  int number;
+} Reddit;
+
+typedef enum sub_r {
+  NEWS,
+  JOKES,
+  QUOTES
+} sr_type;
+
 extern User *g_user;
 extern Date *g_date;
 extern Weather *g_weather;
-extern Subreddit *g_jokes;
-extern Subreddit *g_news;
-extern Subreddit *g_uwaterloo;
-extern Subreddit **g_subreddits;
-
-extern const int NUM_SUBREDDITS; 
+extern Reddit *g_reddit;
 
 User * update_user (User *user);
 Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
-Subreddit * update_subreddit (Subreddit *subreddit, char *name);
+Reddit * update_reddit (Reddit *reddit);
 
 void refresh_user (void);
 void refresh_date (void);
 void refresh_weather (void);
-void refresh_jokes (void);
 void refresh_all (void);
 void send_email (char * to, char * body);
 

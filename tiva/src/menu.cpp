@@ -345,7 +345,7 @@ void news_page_tick (int selection)
   long marquee_delay = MARQUEE_DELAY; 
   int line_select = 1; 
   int page = 0 ; 
-  int page_max = g_jokes->number - 2;
+  int page_max = g_reddit->subreddits[0]->number - 2;
   int init_toggle = read_switch(0);  
   int tog2 = read_switch(1); 
   int sub_ind = 0; 
@@ -355,7 +355,7 @@ void news_page_tick (int selection)
     if(tog2 != read_switch(1)){
       tog2 = read_switch(1); 
       sub_ind++; 
-      sub_ind = sub_ind % NUM_SUBREDDITS; 
+      sub_ind = sub_ind % g_reddit->number;
     }
 
     //page is article we start with
@@ -365,18 +365,18 @@ void news_page_tick (int selection)
       if(0 == page + i - 1){
         char tmp[30]; 
         strcpy(tmp,"Reddit: "); 
-        strcat(tmp,g_subreddits[sub_ind]->name);
+        strcat(tmp,g_reddit->subreddits[sub_ind]->name);
         OrbitOledDrawString (tmp);
         continue;
       }
-      if(page + i - 2 > g_subreddits[sub_ind]->number){
+      if(page + i - 2 > g_reddit->subreddits[sub_ind]->number){
         continue;
       }
       if(line_select == i){
-        marquee_text (g_subreddits[sub_ind]->posts[page +  i - 2].title, time_selected_init, marquee_delay); 
+        marquee_text (g_reddit->subreddits[sub_ind]->posts[page +  i - 2].title, time_selected_init, marquee_delay); 
       }
       else{
-        OrbitOledDrawString (g_subreddits[sub_ind]->posts[page + i - 2].title);
+        OrbitOledDrawString (g_reddit->subreddits[sub_ind]->posts[page + i - 2].title);
       }
     } 
     oled_paint_progress_bar(page,page_max); 
@@ -386,7 +386,7 @@ void news_page_tick (int selection)
     if(init_toggle != read_switch(0)){
       if(!(page == 0 && line_select == 1))
       {
-        view_news_page (selection, g_subreddits[sub_ind]->posts[page + line_select - 2]);
+        view_news_page (selection, g_reddit->subreddits[sub_ind]->posts[page + line_select - 2]);
       }
     }
     int new_line_select = get_page_action (line_select, 4);
