@@ -36,6 +36,7 @@ extern const double CHAR_HEIGHT;
 extern const double CHAR_WIDTH; 
 
 //constants
+static const int MARQUEE_DELAY = 500; //ms
 static const int NUM_MENUS = 4; 
 
 //local variables
@@ -239,9 +240,20 @@ void view_news_page (int selection, Post article)
   int tog = read_switch(0); 
   int page = 0; 
   int len = strlen(article.text);
+  bool title = false;
+  if(len < 5){
+    title = true;
+  }
   while(tog == read_switch(0) && selection == get_menu_selection())
   {
-    print_string_page(article.text, page); 
+    if(title)
+    {
+      print_string_page(article.title, page); 
+    }
+    else
+    {
+      print_string_page(article.text, page); 
+    }
     page = get_page_action (page, len / CHARS_PER_LINE - 2); 
   }
 }
@@ -252,7 +264,7 @@ void reply_message(int selection, Mail * message)
   display_user_prompt("Enter a reply ");
   char reply_buffer[1000]; 
   while(tog == read_switch(0) && selection == get_menu_selection()){
-    strcpy(reply_buffer, get_user_input()); 
+    send_email ("aiden.benner@gmail.com", get_user_input()); 
   }
 }
 
@@ -330,37 +342,52 @@ void news_page_tick (int selection)
   int init_selection = get_menu_selection();
   long init_time = millis(); 
   long time_selected_init = millis(); 
-  long marquee_delay = 500; 
+  long marquee_delay = MARQUEE_DELAY; 
   int line_select = 1; 
   int page = 0 ; 
   int page_max = g_jokes->number - 2;
   int init_toggle = read_switch(0);  
+  int tog2 = read_switch(1); 
+  int sub_ind = 0; 
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
+
+    if(tog2 != read_switch(1)){
+      tog2 = read_switch(1); 
+      sub_ind++; 
+      sub_ind = sub_ind % NUM_SUBREDDITS; 
+    }
+
     //page is article we start with
     //repeat for each line
     for(int i = 1; i<=3; i++){
       orbit_moveto_line(i);
       if(0 == page + i - 1){
-        OrbitOledDrawString ("Jokes: ");
+        char tmp[30]; 
+        strcpy(tmp,"Reddit: "); 
+        strcat(tmp,g_subreddits[sub_ind]->name);
+        OrbitOledDrawString (tmp);
         continue;
       }
-      if(page + i - 2 > g_jokes->number){
+      if(page + i - 2 > g_subreddits[sub_ind]->number){
         continue;
       }
       if(line_select == i){
-        marquee_text (g_jokes->posts[page +  i - 2].title, time_selected_init, marquee_delay); 
+        marquee_text (g_subreddits[sub_ind]->posts[page +  i - 2].title, time_selected_init, marquee_delay); 
       }
       else{
-        OrbitOledDrawString (g_jokes->posts[page + i - 2].title);
+        OrbitOledDrawString (g_subreddits[sub_ind]->posts[page + i - 2].title);
       }
-    }
+    } 
     oled_paint_progress_bar(page,page_max); 
     oled_paint_line_selection (line_select);
     menu_tick ();
     OrbitOledUpdate ();
-    if(init_toggle != read_switch(0) ){
-      view_news_page (selection, g_jokes->posts[page + line_select - 2]);
+    if(init_toggle != read_switch(0)){
+      if(!(page == 0 && line_select == 1))
+      {
+        view_news_page (selection, g_subreddits[sub_ind]->posts[page + line_select - 2]);
+      }
     }
     int new_line_select = get_page_action (line_select, 4);
     if(new_line_select != line_select){

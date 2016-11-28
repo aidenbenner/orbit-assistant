@@ -9,8 +9,6 @@
 #include "parser.h"
 #include "state.h"
 
-#define print(x) Serial.println("x")
-
 void device_init ()
 {
   serial_init ();

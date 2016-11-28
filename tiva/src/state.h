@@ -43,6 +43,7 @@ typedef struct Post {
 } Post;
 
 typedef struct Subreddit {
+  char * name; 
   Post *posts;
   int number;
 } Subreddit;
@@ -51,16 +52,22 @@ extern User *g_user;
 extern Date *g_date;
 extern Weather *g_weather;
 extern Subreddit *g_jokes;
+extern Subreddit *g_news;
+extern Subreddit *g_uwaterloo;
+extern Subreddit **g_subreddits;
+
+extern const int NUM_SUBREDDITS; 
 
 User * update_user (User *user);
 Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
-Subreddit * update_subreddit (Subreddit *subreddit);
+Subreddit * update_subreddit (Subreddit *subreddit, char *name);
 
 void refresh_user (void);
 void refresh_date (void);
 void refresh_weather (void);
 void refresh_jokes (void);
 void refresh_all (void);
+void send_email (char * to, char * body);
 
 #endif

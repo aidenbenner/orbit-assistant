@@ -6,12 +6,16 @@
 #include "parser.h"
 #include "state.h"
 
-static const int NUM_POSTS = 5;
+const int NUM_POSTS = 5;
+const int NUM_SUBREDDITS = 3;
 
 User *g_user;
 Date *g_date;
 Weather *g_weather;
 Subreddit *g_jokes;
+Subreddit *g_news;
+Subreddit *g_uwaterloo;
+Subreddit **g_subreddits; 
 
 void refresh_user (void)
 {
@@ -30,7 +34,46 @@ void refresh_weather (void)
 
 void refresh_jokes (void)
 {
-  g_jokes = update_subreddit (g_jokes);
+  g_jokes = update_subreddit (g_jokes, "jokes");
+}
+
+void refresh_news (void)
+{
+  g_news = update_subreddit (g_news, "worldnews");
+}
+
+void refresh_uw (void)
+{
+  g_uwaterloo = update_subreddit (g_uwaterloo, "quotes");
+}
+
+void refresh_reddit (void)
+{
+  refresh_jokes ();
+  refresh_news ();
+  refresh_uw (); 
+}
+
+void refresh_subreddits (void) 
+{
+  refresh_reddit ();
+  if(g_subreddits)
+  {
+    free(g_subreddits);
+    for(int i = 0; i<NUM_SUBREDDITS; i++)
+    {
+      free(g_subreddits[i]);
+    }
+  }
+  g_subreddits = (Subreddit **)malloc(sizeof(Subreddit**));
+  for(int i = 0; i<NUM_SUBREDDITS; i++)
+  {
+    g_subreddits[i] = (Subreddit *)malloc (sizeof(Subreddit *));
+  }
+  g_subreddits[0] = g_jokes;
+  g_subreddits[1] = g_news;
+  Serial.println (g_subreddits[1]->name);
+  g_subreddits[2] = g_uwaterloo;
 }
 
 void refresh_all (void)
@@ -38,7 +81,7 @@ void refresh_all (void)
   refresh_user ();
   refresh_date ();
   refresh_weather ();
-  refresh_jokes ();
+  refresh_subreddits (); 
 }
 
 User * update_user (User *user)
@@ -144,7 +187,7 @@ Weather * update_weather (Weather *weather)
   return weather;
 }
 
-Subreddit * update_subreddit (Subreddit *subreddit)
+Subreddit * update_subreddit (Subreddit *subreddit, char * name)
 {
   if (subreddit)
   {
@@ -154,16 +197,24 @@ Subreddit * update_subreddit (Subreddit *subreddit)
       free (subreddit->posts[i].text);
     }
     free (subreddit->posts);
+    free (subreddit->name);
     free (subreddit);
   }
-
-  Serial.println ("GET_NEWS:jokes:5");
+  
+  Serial.print ("GET_NEWS:");
+  Serial.print (name);
+  Serial.print (":");
+  Serial.println (NUM_POSTS);
+  
   char *buffer = serial_readline ();
   json_buffer *jb = parse_json (buffer);
 
   subreddit = (Subreddit *) malloc (sizeof (Subreddit));
   subreddit->posts = (Post *) malloc (sizeof (Post) * NUM_POSTS);
   subreddit->number = NUM_POSTS;
+  subreddit->name = (char *)malloc(20 * sizeof(char));
+  strcpy(subreddit->name, name);
+
 
   char **titles = get_values ("title", buffer, jb, 2);
   char **texts = get_values ("text", buffer, jb, 2);
@@ -176,3 +227,15 @@ Subreddit * update_subreddit (Subreddit *subreddit)
 
   return subreddit;
 }
+
+void send_email (char * to, char * body)
+{
+  Serial.print("SEND_MAIL:");
+  Serial.print(to);
+  Serial.print(":");
+  Serial.println(body);
+}
+
+
+
+
