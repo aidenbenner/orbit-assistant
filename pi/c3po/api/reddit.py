@@ -1,6 +1,6 @@
 import praw
 
-user_agent = 'linux:dank_memes:v4.20'
+user_agent = 'linux:dank_memes:Mr.Goose'
 reddit = praw.Reddit(user_agent=user_agent)
 
 
@@ -16,12 +16,13 @@ def get_news(options):
             # ...
         ]
     """
-    subreddit, number_posts = options
+    subreddit = options[0]
+    number_posts = int(options[1])
     sr = reddit.get_subreddit(subreddit)
 
     result = []
 
-    for post in sr.get_hot(limit=num_posts):
-        result.append({'title': post.title, 'text': post.selftext})
+    for i, post in enumerate(sr.get_hot(limit=number_posts)):
+        result.append({'title': str(i + 1) + '. ' + post.title, 'text': post.selftext})
 
     return result

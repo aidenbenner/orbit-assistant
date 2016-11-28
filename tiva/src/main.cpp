@@ -18,7 +18,6 @@ void device_init ()
   oled_init ();
   accel_init ();
   init_sensors (); 
-  Serial.println ("yolo");
   refresh_all ();
   menu_init (); 
   led_left_right (255, true);

@@ -33,25 +33,25 @@ typedef struct Post {
   char *text;
 } Post;
 
-typedef struct Posts {
-  Post *post;
+typedef struct Subreddit {
+  Post *posts;
   int number;
-} Posts;
+} Subreddit;
 
 extern User *g_user;
 extern Date *g_date;
 extern Weather *g_weather;
-extern Posts *g_posts;
+extern Subreddit *g_jokes;
 
 User * update_user (User *user);
 Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
-Posts * update_posts (Posts *posts);
+Subreddit * update_subreddit (Subreddit *subreddit);
 
 void refresh_user (void);
 void refresh_date (void);
 void refresh_weather (void);
-void refresh_posts (void);
+void refresh_jokes (void);
 void refresh_all (void);
 
 #endif

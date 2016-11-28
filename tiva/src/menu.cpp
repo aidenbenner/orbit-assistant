@@ -50,9 +50,6 @@ static long last_page_action_time = millis();
 //placeholder for testing 
 //this populates g_date and g_weather with dummy data
 
-const int NUM_REDDIT_POSTS = 5; 
-struct Post reddit_news[NUM_REDDIT_POSTS]; 
-
 typedef struct Mail {
   char * to;
   char * from;
@@ -76,14 +73,9 @@ char dummy_headline_5[] = "5. Google is warning prominent journalists and profes
 
 void test_data() 
 {
-
-  reddit_news[0].title = dummy_headline_1;
-  reddit_news[1].title = dummy_headline_2;
-  reddit_news[2].title = dummy_headline_3;
-  reddit_news[3].title = dummy_headline_4;
-  reddit_news[4].title = dummy_headline_5;
-
-  g_mail[0].to = "aiden.benner@gmail.com"; g_mail[0].from = "lpan@gmail.com"; g_mail[0].subject = "Tiva project"; 
+  g_mail[0].to = "aiden.benner@gmail.com"; 
+  g_mail[0].from = "lpan@gmail.com"; 
+  g_mail[0].subject = "Tiva project"; 
   g_mail[0].body    = "how is it going ? "; 
 
   g_mail[1].to = "aiden.benner@gmail.com"; 
@@ -261,10 +253,10 @@ void view_news_page (int selection, Post article)
 {
   int tog = read_switch(0); 
   int page = 0; 
-  int len = strlen(article.title); 
+  int len = strlen(article.text);
   while(tog == read_switch(0) && selection == get_menu_selection())
   {
-    print_string_page(article.title, page); 
+    print_string_page(article.text, page); 
     page = get_page_action (page, len / CHARS_PER_LINE - 2); 
   }
 }
@@ -357,7 +349,7 @@ void news_page_tick (int selection)
 
   int line_select = 1; 
   int page = 0 ; 
-  int page_max = NUM_REDDIT_POSTS; 
+  int page_max = g_jokes->number + 1;
   int init_toggle = read_switch(0);;  
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
@@ -366,17 +358,17 @@ void news_page_tick (int selection)
     for(int i = 1; i<=3; i++){
       orbit_moveto_line(i);
       if(0 == page + i - 1){
-        OrbitOledDrawString ("News: ");
+        OrbitOledDrawString ("Jokes: ");
         continue;
       }
-      if(page + i - 2 > NUM_REDDIT_POSTS){
+      if(page + i - 2 > g_jokes->number){
         continue;
       }
       if(line_select == i){
-        marquee_text (reddit_news[page +  i - 2].title, time_selected_init, marquee_delay); 
+        marquee_text (g_jokes->posts[page +  i - 2].title, time_selected_init, marquee_delay); 
       }
       else{
-        OrbitOledDrawString (reddit_news[page + i - 2].title);
+        OrbitOledDrawString (g_jokes->posts[page + i - 2].title);
       }
     }
     oled_paint_progress_bar(page,page_max); 
@@ -384,9 +376,9 @@ void news_page_tick (int selection)
     menu_tick ();
     OrbitOledUpdate ();
     if(init_toggle != read_switch(0) ){
-      view_news_page (selection, reddit_news[page + line_select - 2]);
+      view_news_page (selection, g_jokes->posts[page + line_select - 2]);
     }
-    int new_line_select = get_page_action (line_select, 4); 
+    int new_line_select = get_page_action (line_select, 4);
     if(new_line_select != line_select){
       if(new_line_select >= 4){
         if(page < page_max)

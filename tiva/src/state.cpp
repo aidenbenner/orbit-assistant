@@ -6,10 +6,12 @@
 #include "parser.h"
 #include "state.h"
 
+static const int NUM_POSTS = 5;
+
 User *g_user;
 Date *g_date;
 Weather *g_weather;
-Posts *g_posts;
+Subreddit *g_jokes;
 
 void refresh_user (void)
 {
@@ -26,9 +28,9 @@ void refresh_weather (void)
   g_weather = update_weather (g_weather);
 }
 
-void refresh_posts (void)
+void refresh_jokes (void)
 {
-  g_posts = update_posts (g_posts);
+  g_jokes = update_subreddit (g_jokes);
 }
 
 void refresh_all (void)
@@ -36,7 +38,7 @@ void refresh_all (void)
   refresh_user ();
   refresh_date ();
   refresh_weather ();
-  refresh_posts ();
+  refresh_jokes ();
 }
 
 User * update_user (User *user)
@@ -142,20 +144,35 @@ Weather * update_weather (Weather *weather)
   return weather;
 }
 
-Posts * update_posts (Posts *posts)
+Subreddit * update_subreddit (Subreddit *subreddit)
 {
-  if (posts)
+  if (subreddit)
   {
-    for (int i = 0; i < posts->number; i ++)
-      free (posts->post);
-    free (posts);
+    for (int i = 0; i < subreddit->number; i ++)
+    {
+      free (subreddit->posts[i].title);
+      free (subreddit->posts[i].text);
+    }
+    free (subreddit->posts);
+    free (subreddit);
   }
 
-  Serial.println ("GET_NEWS:worldnews:10");
+  Serial.println ("GET_NEWS:jokes:5");
   char *buffer = serial_readline ();
+  json_buffer *jb = parse_json (buffer);
 
-  Serial.println (buffer);
+  subreddit = (Subreddit *) malloc (sizeof (Subreddit));
+  subreddit->posts = (Post *) malloc (sizeof (Post) * NUM_POSTS);
+  subreddit->number = NUM_POSTS;
 
-  posts = (Posts *) malloc (sizeof (Posts));
-  return posts;
+  char **titles = get_values ("title", buffer, jb, 2);
+  char **texts = get_values ("text", buffer, jb, 2);
+
+  for (int i = 0; i < NUM_POSTS; i ++)
+  {
+    subreddit->posts[i].title = titles[i];
+    subreddit->posts[i].text = texts[i];
+  }
+
+  return subreddit;
 }
