@@ -66,3 +66,4 @@ def send_mail(options):
     m.login(username, password)
 
     m.sendmail(username, recipient, body)
+    return {'status': "SUCCESS"}
