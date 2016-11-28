@@ -340,10 +340,9 @@ void news_page_tick (int selection)
     //page is article we start with
     //repeat for each line
     for(int i = 1; i<=3; i++){
-      Serial.println(page + i - 2);
       orbit_moveto_line(i);
       if(0 == page + i - 1){
-        OrbitOledDrawString ("News: ");
+        OrbitOledDrawString ("Jokes: ");
         continue;
       }
       if(page + i - 2 > g_jokes->number){

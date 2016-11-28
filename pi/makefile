@@ -1,2 +1,2 @@
 all:
-	python ./entry.py /dev/ttyACM1
+	python ./entry.py /dev/ttyACM0
