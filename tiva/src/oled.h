@@ -25,7 +25,6 @@ extern const int LINE_3_X;
 extern const int CENTERED_STR_Y; 
 extern const int PAGE_LINE_SHIFT;
 
-
 char * get_user_input ();
 void print_string_page ( char * input, int page); 
 void oled_paint_line_selection (int current_line);

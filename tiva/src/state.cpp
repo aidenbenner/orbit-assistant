@@ -189,6 +189,9 @@ Subreddit * update_subreddit (Subreddit *subreddit, char *name)
     subreddit->posts[i].text = texts[i];
   }
 
+  delete_json_buffer (jb);
+  free (buffer);
+
   return subreddit;
 }
 
