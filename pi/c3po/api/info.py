@@ -6,7 +6,7 @@ import json
 
 
 def get_info():
-    with open('../../info.json') as info:
+    with open('./info.json') as info:
         data = json.load(info)
 
     return data
@@ -19,9 +19,14 @@ def set_info(options):
         - value eg. Aiden
     """
     attr, value = options
+    filename = './info.json'
 
-    with open('../../info.json') as info:
+    with open(filename) as info:
         data = json.load(info)
 
     data[attr] = value
+
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile)
+
     return data
