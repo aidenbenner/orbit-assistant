@@ -232,7 +232,7 @@ Reddit * update_reddit (Reddit *reddit)
   }
 
   reddit = (Reddit *) malloc (sizeof (Reddit));
-  reddit->number = 3;
+  reddit->number = NUM_SUBREDDITS;
   reddit->subreddits = (Subreddit **) malloc (NUM_SUBREDDITS * sizeof (Subreddit *));
 
   for (int i = 0; i < NUM_SUBREDDITS; i ++)
@@ -277,11 +277,12 @@ Inbox * update_inbox (Inbox *inbox)
 
   int len = jb->t[0].size;
 
-  Serial.println(len);
   inbox->number = len;
+  inbox->mails = (Mail **) malloc (sizeof (Mail *) * len);
 
   for (int i = 0; i < len; i ++)
   {
+    inbox->mails[i] = (Mail *) malloc (sizeof (Mail));
     inbox->mails[i]->from = froms[i];
     inbox->mails[i]->subject = subjects[i];
     inbox->mails[i]->body = bodies[i];
