@@ -8,13 +8,16 @@
 
 const int NUM_POSTS = 5;
 const int NUM_SUBREDDITS = 4;
+// max size of mails to get, actual value may be lower, use g_inbox->number
+static const int NUM_MAILS = 5;
+static char *SUBREDDITS[] = { "worldnews", "jokes", "quotes" };
 
-static char *SUBREDDITS[] = { "worldnews", "jokes", "todayilearned", "showerthoughts" };
 
 User *g_user;
 Date *g_date;
 Weather *g_weather;
 Reddit *g_reddit;
+Inbox *g_inbox;
 
 void refresh_user (void)
 {
@@ -34,7 +37,11 @@ void refresh_weather (void)
 void refresh_reddit (void)
 {
   g_reddit = update_reddit (g_reddit);
-  // Serial.println (g_reddit->subreddits[JOKES]->posts[0].title);
+}
+
+void refresh_inbox (void)
+{
+  g_inbox = update_inbox (g_inbox);
 }
 
 void refresh_all (void)
@@ -43,6 +50,7 @@ void refresh_all (void)
   refresh_date ();
   refresh_weather ();
   refresh_reddit ();
+  refresh_inbox ();
 }
 
 /**
@@ -231,6 +239,63 @@ Reddit * update_reddit (Reddit *reddit)
     reddit->subreddits[i] = update_subreddit ((Subreddit *) NULL, SUBREDDITS[i]);
 
   return reddit;
+}
+
+void free_mail (Mail *mail)
+{
+  if (mail)
+  {
+    free (mail->to);
+    free (mail->from);
+    free (mail->subject);
+    free (mail->body);
+    free (mail);
+  }
+}
+
+Inbox * update_inbox (Inbox *inbox)
+{
+  if (inbox)
+  {
+    for (int i = 0; i < inbox->number; i ++)
+      free_mail (inbox->mails[i]);
+    free (inbox);
+  }
+
+  Serial.print ("GET_MAILS:");
+  Serial.println (NUM_MAILS);
+
+  char *buffer = serial_readline ();
+  json_buffer *jb = parse_json (buffer);
+
+  inbox = (Inbox *) malloc (sizeof (Inbox));
+
+  char **froms = get_values ("from", buffer, jb, 4);
+  char **subjects = get_values ("subject", buffer, jb, 4);
+  char **bodies = get_values ("body", buffer, jb, 4);
+  char **tos = get_values ("to", buffer, jb, 4);
+
+  int len = jb->t[0].size;
+
+  Serial.println(len);
+  inbox->number = len;
+
+  for (int i = 0; i < len; i ++)
+  {
+    inbox->mails[i]->from = froms[i];
+    inbox->mails[i]->subject = subjects[i];
+    inbox->mails[i]->body = bodies[i];
+    inbox->mails[i]->to = tos[i];
+  }
+
+  delete_json_buffer (jb);
+  free (froms);
+  free (subjects);
+  free (bodies);
+  free (tos);
+  free (buffer);
+
+  return inbox;
 }
 
 void send_email (char * to, char * body)
