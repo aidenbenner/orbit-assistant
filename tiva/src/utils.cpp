@@ -15,7 +15,6 @@ int string_section_to_int(const char * s, int start, int end)
   return result;
 }
 
-
 double limit (double lower, double upper, double c)
 {
   if(c < lower) c = lower; 
