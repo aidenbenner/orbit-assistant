@@ -8,7 +8,7 @@
 
 static const int NUM_POSTS = 5;
 static const int NUM_SUBREDDITS = 3;
-static char *SUBREDDITS[] = { "worldnews", "jokes", "quotes" };
+static char *SUBREDDITS[] = { "worldnews", "jokes", "todayilearned" };
 
 User *g_user;
 Date *g_date;
@@ -84,7 +84,7 @@ User * update_user (User *user, char *prop, char *value)
   delete_json_buffer (jb);
   free (buffer);
 
-  return user;
+  return user; 
 }
 
 Date * update_date (Date *date)
