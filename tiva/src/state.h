@@ -74,7 +74,7 @@ User * update_user (User *user, char *prop, char *value);
 Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
 Reddit * update_reddit (Reddit *reddit);
-Inbox * update_inbox (Inbox inbox);
+Inbox * update_inbox (Inbox *inbox);
 
 void refresh_user (void);
 void refresh_date (void);

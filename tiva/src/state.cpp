@@ -12,6 +12,7 @@ static const int NUM_SUBREDDITS = 3;
 static const int NUM_MAILS = 5;
 static char *SUBREDDITS[] = { "worldnews", "jokes", "quotes" };
 
+
 User *g_user;
 Date *g_date;
 Weather *g_weather;
