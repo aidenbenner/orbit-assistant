@@ -10,7 +10,7 @@ const int NUM_POSTS = 5;
 const int NUM_SUBREDDITS = 4;
 // max size of mails to get, actual value may be lower, use g_inbox->number
 static const int NUM_MAILS = 5;
-static char *SUBREDDITS[] = { "worldnews", "jokes", "quotes" };
+static char *SUBREDDITS[] = { "worldnews", "jokes", "todayilearned","showerthoughts" };
 
 
 User *g_user;
