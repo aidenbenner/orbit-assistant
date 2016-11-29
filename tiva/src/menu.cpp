@@ -104,6 +104,7 @@ void get_user_name ()
 {
   display_user_prompt ("Please enter your name"); 
   strcpy(user_name, get_user_input());
+  update_user (g_user, "name", user_name);
 }
 
 void update_time () 
