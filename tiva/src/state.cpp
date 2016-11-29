@@ -66,9 +66,9 @@ User * update_user (User *user, char *prop, char *value)
     Serial.println ("GET_INFO:NULL");
   else
   {
-    Serial.print ("SET_INFO:")
-    Serial.print (prop)
-    Serial.print (":")
+    Serial.print ("SET_INFO:");
+    Serial.print (prop);
+    Serial.print (":");
     Serial.println (value);
   }
 
