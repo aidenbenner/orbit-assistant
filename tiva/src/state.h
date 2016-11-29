@@ -69,6 +69,7 @@ extern Date *g_date;
 extern Weather *g_weather;
 extern Reddit *g_reddit;
 extern Inbox *g_inbox;
+extern const int NUM_SUBREDDITS; 
 
 User * update_user (User *user, char *prop, char *value);
 Date * update_date (Date *date);

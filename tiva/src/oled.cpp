@@ -9,7 +9,7 @@
 //constants
 const int SCREEN_LENGTH = 132;
 const int SCREEN_HEIGHT = 32;
-const unsigned int INPUT_TIME_THRESH = 300;  //ms
+const unsigned int INPUT_TIME_THRESH = 200;  //ms
 const int DELAY_MS = 50;  //m
 
 const double CHAR_HEIGHT = 7;
@@ -87,7 +87,7 @@ void print_string_page ( char * input, int page)
 {
   int curr_line = page * PAGE_LINE_SHIFT;
   int len = strlen(input); 
-  OrbitOledClearBuffer();
+
   send_line_to_buffer (input,curr_line);
   OrbitOledMoveTo (LINE_1_X,LINE_1_Y);
   OrbitOledDrawString (line_buffer);
@@ -100,7 +100,6 @@ void print_string_page ( char * input, int page)
   OrbitOledMoveTo (LINE_3_X,LINE_3_Y);
   OrbitOledDrawString (line_buffer);
 
-  OrbitOledUpdate ();
 }
 
 void oled_draw_multiline_string(char * input, int current_line)

@@ -240,13 +240,18 @@ void view_news_page (int selection, Post article)
 {
   int tog = read_switch(0); 
   int page = 0; 
-  int len = strlen(article.text);
+  int len = strlen (article.text);
   bool title = false;
   if(len < 5){
     title = true;
+    len = strlen (article.title); 
   }
+  int page_max = len / CHARS_PER_LINE - 1; 
+
   while(tog == read_switch(0) && selection == get_menu_selection())
   {
+    OrbitOledClearBuffer(); 
+    oled_paint_progress_bar(page,page_max); 
     if(title)
     {
       print_string_page(article.title, page); 
@@ -255,7 +260,8 @@ void view_news_page (int selection, Post article)
     {
       print_string_page(article.text, page); 
     }
-    page = get_page_action (page, len / CHARS_PER_LINE - 2); 
+    page = get_page_action (page, page_max); 
+    OrbitOledUpdate(); 
   }
 }
 
@@ -356,7 +362,7 @@ void news_page_tick (int selection)
     if(tog2 != read_switch(1)){
       tog2 = read_switch(1); 
       sub_ind++; 
-      sub_ind = sub_ind % g_reddit->number;
+      sub_ind = sub_ind % NUM_SUBREDDITS;
     }
 
     //page is article we start with
@@ -367,7 +373,12 @@ void news_page_tick (int selection)
         char tmp[30]; 
         strcpy(tmp,"Reddit: "); 
         strcat(tmp,g_reddit->subreddits[sub_ind]->name);
-        OrbitOledDrawString (tmp);
+        if(line_select == 1){
+          marquee_text (tmp, time_selected_init, marquee_delay); 
+        }
+        else {
+          OrbitOledDrawString (tmp);
+        }
         continue;
       }
       if(page + i - 2 > g_reddit->subreddits[sub_ind]->number){
@@ -442,6 +453,7 @@ void menu_tick ()
 void weather_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
+  long time_selected_init = millis(); 
   long init_time = millis(); 
 
   //TODO maybe get rid of these magic numbers
@@ -449,21 +461,77 @@ void weather_page_tick (int selection)
   int tmp_size = 20;
   char temp[tmp_size]; 
   //need to convert our weather struct into a printable string
+  int page = 0; 
+  int page_max = 5; 
+  int line_select = 1; 
   char second_line[30]; 
   strcpy (second_line, g_weather->temp);
-  strcat (second_line, "C High "); 
+  strcat (second_line, "C H:"); 
   strcat(second_line, g_weather->temp_max);
+  strcat (second_line, "C L:"); 
+  strcat(second_line, g_weather->temp_min);
   strcat (second_line, "C"); 
+
+  char humidity_str[30]; 
+  strcpy (humidity_str, "Humidity "); 
+  strcat (humidity_str, g_weather->humidity); 
+
+  char pressure_str[30]; 
+  strcpy (pressure_str, "Pressure "); 
+  strcat (pressure_str, g_weather->pressure); 
+
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
-    orbit_moveto_line (1);
-    marquee_text (g_user->city, init_time, init_delay); 
-    orbit_moveto_line (2);
-    marquee_text (second_line,init_time,init_delay);
-    orbit_moveto_line (3);
-    marquee_text(g_weather->description, init_time, init_delay); 
+
+    int curr_line = 1 - page; 
+    marquee_text_if_selected (g_user->city, init_time, init_delay, 
+       1 == line_select + page, curr_line++);  
+    marquee_text_if_selected (second_line, init_time, init_delay,
+       2 == line_select + page, curr_line++); 
+    marquee_text_if_selected (g_weather->description, init_time, init_delay,
+       3 == line_select + page, curr_line++); 
+    marquee_text_if_selected (humidity_str, init_time, init_delay,
+       4 == line_select + page, curr_line++); 
+    marquee_text_if_selected (pressure_str, init_time, init_delay,
+       5 == line_select + page, curr_line++); 
+
+    oled_paint_line_selection (line_select);
+    oled_paint_progress_bar(page, page_max); 
+
     menu_tick ();
     OrbitOledUpdate ();
+
+    int new_line_select = get_page_action (line_select, 4); 
+    if(new_line_select != line_select)
+    {
+      if(new_line_select >= 4)
+      {
+        if(page < page_max)
+        {  
+          page++;
+          line_select--;
+        }
+        new_line_select = 3;
+        line_select = 3; 
+        time_selected_init = millis(); 
+      }
+      if(new_line_select <= 0)
+      {
+        if(page > 0)
+        {
+          page--; 
+          line_select++; 
+        } 
+        line_select = 1; 
+        new_line_select = 1;
+        time_selected_init = millis(); 
+      }
+      else
+      {
+        time_selected_init = millis(); 
+        line_select = new_line_select;
+      }
+    }
   }  
 }
 
