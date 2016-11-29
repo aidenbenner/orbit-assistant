@@ -6,8 +6,9 @@
 #include "parser.h"
 #include "state.h"
 
-static const int NUM_POSTS = 5;
-static const int NUM_SUBREDDITS = 4;
+const int NUM_POSTS = 5;
+const int NUM_SUBREDDITS = 4;
+
 static char *SUBREDDITS[] = { "worldnews", "jokes", "todayilearned", "showerthoughts" };
 
 User *g_user;
