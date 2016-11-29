@@ -51,43 +51,9 @@ static long last_page_action_time = millis();
 //will need to dynamically allocate this so we can have more messages
 int NUM_UNREAD_MAIL = 5; 
 const int NUM_MAIL_MESSAGES = 5; 
-Mail g_mail[NUM_MAIL_MESSAGES]; 
-
-void test_data() 
-{
-  g_mail[0].to = "aiden.benner@gmail.com";
-  g_mail[0].from = "lpan@gmail.com";
-  g_mail[0].subject = "Tiva project";
-  g_mail[0].body    = "how is it going ? ";
-
-  g_mail[1].to = "aiden.benner@gmail.com"; 
-  g_mail[1].from = "amazon@gmail.com"; 
-  g_mail[1].subject = "Cyber Monday "; 
-  g_mail[1].body    = "Get our cyber monday deals! "; 
-
-  g_mail[2].to = "aiden.benner@gmail.com"; 
-  g_mail[2].from = "Google "; 
-  g_mail[2].subject = "Password reset"; 
-  g_mail[2].body    = "Did you reset your password recently? "; 
-
-  g_mail[3].to = "aiden.benner@gmail.com"; 
-  g_mail[3].from = "crowdmark@crowdmark.com"; 
-  g_mail[3].subject = "Crowdmark Midterm Results"; 
-  g_mail[3].body    = "You scored 0/100 on all midterms :( "; 
-
-  g_mail[4].to = "aiden.benner@gmail.com"; 
-  g_mail[4].from = "spambot@gmail.com"; 
-  g_mail[4].subject = "Nigerian Prince "; 
-  g_mail[4].body    = "Pls send money "; 
-
-  for(int i = 0; i<4; i++){
-    g_mail[i].read = false; 
-  }
-}
 
 void menu_init ()
 {
-  test_data() ;
   //update the data from pi  
   menu_refresh ();
 }
@@ -497,10 +463,10 @@ void mail_page_tick(int selection)
       if(page + i - 2 >= NUM_MAIL_MESSAGES){
         continue;
       }
-      strcpy(buffer, g_mail[page+i-2].read ? "- " : "o ");
-      strcat(buffer, g_mail[page+i-2].subject);
+      strcpy(buffer, g_inbox->mails[page+i-2]->read ? "- " : "o ");
+      strcat(buffer, g_inbox->mails[page+i-2]->subject);
       strcat(buffer, " | ");
-      strcat(buffer, g_mail[page+i-2].from);
+      strcat(buffer, g_inbox->mails[page+i-2]->from);
       //draw checkbox 
       if(line_select == i)
       {
@@ -517,8 +483,8 @@ void mail_page_tick(int selection)
     OrbitOledUpdate ();
     if(init_toggle != read_switch(0))
     {
-      view_mail_message (selection, &g_mail[page + line_select - 2]);
-      g_mail[page + line_select - 2].read = true; 
+      view_mail_message (selection, g_inbox->mails[page + line_select - 2]);
+      g_inbox->mails[page + line_select - 2]->read = true; 
       NUM_UNREAD_MAIL--;
     }
     int new_line_select = get_page_action (line_select, 4); 

@@ -93,7 +93,7 @@ User * update_user (User *user, char *prop, char *value)
   delete_json_buffer (jb);
   free (buffer);
 
-  return user; 
+  return user;
 }
 
 Date * update_date (Date *date)
@@ -287,6 +287,7 @@ Inbox * update_inbox (Inbox *inbox)
     inbox->mails[i]->subject = subjects[i];
     inbox->mails[i]->body = bodies[i];
     inbox->mails[i]->to = tos[i];
+    inbox->mails[i]->read = false;
   }
 
   delete_json_buffer (jb);
