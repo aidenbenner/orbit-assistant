@@ -22,7 +22,9 @@ def fetch(event_name, options):
     Determine what operation to perform according to event_name
     """
     if event_name == config.GET_INFO:
-        return config.info
+        return api.get_info()
+    elif event_name == config.SET_INFO:
+        return api.set_info(options)
     elif event_name == config.GET_DATE:
         return format_date()
     elif event_name == config.GET_WEATHER:
