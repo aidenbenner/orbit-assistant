@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <jsmn.h>
 #include "parser.h"
+#include "sensors/sensors.h"
 
 static const int BUFFER_MAX = 128;
 

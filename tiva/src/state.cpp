@@ -12,7 +12,6 @@ const int NUM_SUBREDDITS = 4;
 static const int NUM_MAILS = 5;
 static char *SUBREDDITS[] = { "worldnews", "jokes", "todayilearned","showerthoughts" };
 
-
 User *g_user;
 Date *g_date;
 Weather *g_weather;
@@ -298,6 +297,14 @@ Inbox * update_inbox (Inbox *inbox)
   free (buffer);
 
   return inbox;
+}
+
+bool check_if_new_mail ()
+{
+  char first_title[100]; 
+  strcpy(first_title, g_inbox->mails[0]->subject); 
+  refresh_inbox (); 
+  return !strcmp(first_title, g_inbox->mails[0]->subject); 
 }
 
 void send_email (char *to, char *subject, char *body)

@@ -82,5 +82,6 @@ void refresh_date (void);
 void refresh_weather (void);
 void refresh_all (void);
 void send_email (char * to, char * subject,  char * body);
+bool check_if_new_mail ();
 
 #endif

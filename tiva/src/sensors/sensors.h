@@ -26,6 +26,7 @@ void led_gradient (int time);
 void led_gradient (int time, long init_time);
 
 void led_left_right (int time, bool left);
+void led_left_right_no_wait (int time, long init_time);
 void flash_led (int port, int del);
 
 //DEBUG

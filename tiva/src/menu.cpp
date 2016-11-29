@@ -402,6 +402,8 @@ void news_page_tick (int selection)
 long last_pot_move_time = millis(); 
 double last_pot_val = read_pot_percent(); 
 long top_bar_time_thresh = 800; 
+long last_mail_check_time = millis(); 
+int const mail_check_interval = 10000; 
 void menu_tick () 
 {
   if(fabs(last_pot_val - read_pot_percent()) > 0.01){
@@ -415,6 +417,16 @@ void menu_tick ()
   else{
     led_gradient(3000,0);
   }
+  /**
+  if(last_mail_check_time + mail_check_interval < millis())
+  {
+    last_mail_check_time = millis();
+    if(check_if_new_mail())
+    {
+      //led_left_right (255, true);
+      //led_left_right (255, false);
+    }
+  } **/ 
 }
 
 

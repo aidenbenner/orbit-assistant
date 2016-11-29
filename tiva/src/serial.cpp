@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include "serial.h"
 #include "utils.h"
+#include "menu.h"
+#include "sensors/sensors.h"
 
 static const int BUFFER_MAX = 4048;
 
@@ -25,6 +27,7 @@ char * serial_readline (void)
   {
     if (Serial.available ())
     {
+
       c = Serial.read();
 
       if (c == '\n')
@@ -32,6 +35,10 @@ char * serial_readline (void)
 
       buffer[count] = c;
       count ++;
+    }
+    else
+    {
+      //led_gradient (3000, 0);
     }
   }
 

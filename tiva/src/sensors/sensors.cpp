@@ -115,6 +115,31 @@ void led_gradient (int time, long init_time)
   }
 }
 
+void led_left_right_no_wait (int time, long init_time)
+{
+  if(init_time == millis()) return;
+
+  double percent = 100 * (fmod(millis() - init_time, time)) / (double)time ;  
+
+  double curr_led; 
+  if(percent < 50)
+  {
+    curr_led = round(2 * percent * time / (double)NUM_LEDS);
+  }
+  else
+  {
+    curr_led = round(-2 * (50 - percent) * time / (double)NUM_LEDS);
+  }
+
+  set_led(curr_led, 255); 
+  for(int i = 0; i<NUM_LEDS; i++)
+  {
+    if(i == curr_led) continue;
+    set_led(i, 0); 
+  }
+
+}
+
 void led_left_right (int time, bool left)
 {
   int del = time/NUM_LEDS;
