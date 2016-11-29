@@ -240,7 +240,7 @@ Reddit * update_reddit (Reddit *reddit)
   return reddit;
 }
 
-void free_mail (Mail mail)
+void free_mail (Mail *mail)
 {
   if (mail)
   {
@@ -252,11 +252,11 @@ void free_mail (Mail mail)
   }
 }
 
-Inbox * update_inbox (Inbox inbox)
+Inbox * update_inbox (Inbox *inbox)
 {
   if (inbox)
   {
-    for (int i = 0; i < mails->number; i ++)
+    for (int i = 0; i < inbox->number; i ++)
       free_mail (inbox->mails[i]);
     free (inbox);
   }
@@ -279,10 +279,10 @@ Inbox * update_inbox (Inbox inbox)
 
   for (int i = 0; i < len; i ++)
   {
-    inbox->mails[i].from = froms[i];
-    inbox->mails[i].subject = subjects[i];
-    inbox->mails[i].body = bodies[i];
-    inbox->mails[i].to = tos[i];
+    inbox->mails[i]->from = froms[i];
+    inbox->mails[i]->subject = subjects[i];
+    inbox->mails[i]->body = bodies[i];
+    inbox->mails[i]->to = tos[i];
   }
 
   delete_json_buffer (jb);
