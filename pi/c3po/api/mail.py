@@ -21,19 +21,19 @@ def trim_body(body):
 def get_mails(options):
     """
     options:
-        - number of emails to get
+        - max number of emails to get
     """
     number_emails = options[0]
 
     m = imaplib.IMAP4_SSL('imap.gmail.com')
     m.login(username, password)
-    m.select('"[Gmail]/Inbox"')
 
+    m.select("inbox")
     resp, items = m.search(None, 'ALL')
 
     mail_ids = items[0].split()
 
-    if mail_ids > number_emails:
+    if len(mail_ids) > int(number_emails):
         mail_ids = number_emails
 
     result = []
@@ -48,8 +48,8 @@ def get_mails(options):
         body = mail.get_body(preferencelist=('plain'))
         body = trim_body(body.as_string())
 
-        result.append({'sender': sender, 'subject': subject, 'body': body})
-
+        result.append({'from': sender, 'subject': subject, 'body': body,
+                       'to': username})
     m.close()
     m.logout()
     return result
