@@ -6,7 +6,8 @@ from email.parser import Parser
 
 # TODO change password and supply from ENV
 password = 'ThankMrGoose'
-username = 'se101bot@gmail.com' 
+username = 'se101bot@gmail.com'
+
 
 def trim_body(body):
     n = re.sub(r'Content-Type: text/plain; charset=UTF-8',
@@ -15,6 +16,7 @@ def trim_body(body):
                flags=re.IGNORECASE)
     n = n.replace('\n', '')
     return n
+
 
 def get_mails(options):
     """
@@ -57,15 +59,18 @@ def send_mail(options):
     """
     options:
         - recipient
+        - subject
         - body
     """
-    recipient, body = options
+    recipient, subject, body = options
+
+    message = 'Subject: %s\n\n%s' % (subject, body)
 
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.ehlo()
     server.starttls()
-    server.login(username,password)
-    server.sendmail(username, recipient, body)
+    server.login(username, password)
+    server.sendmail(username, recipient, message)
     server.quit()
 
     return {'status': "SUCCESS"}
