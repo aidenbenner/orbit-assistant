@@ -238,7 +238,7 @@ void reply_message(int selection, Mail * message)
   char reply_buffer[1000]; 
   while(tog == read_switch(0) && selection == get_menu_selection()){
     char subject[100];  
-    strcpy(subject, "re:"); 
+    strcpy(subject, "re "); 
     strcat(subject, message->subject); 
     send_email (message->from, subject, get_user_input()); 
   }
@@ -444,10 +444,12 @@ void weather_page_tick (int selection)
   char humidity_str[30]; 
   strcpy (humidity_str, "Humidity "); 
   strcat (humidity_str, g_weather->humidity); 
+  strcat (humidity_str, "%"); 
 
   char pressure_str[30]; 
   strcpy (pressure_str, "Pressure "); 
   strcat (pressure_str, g_weather->pressure); 
+  strcat (pressure_str, "Pa"); 
 
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
