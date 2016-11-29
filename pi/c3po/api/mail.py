@@ -23,7 +23,7 @@ def get_mails(options):
     options:
         - max number of emails to get
     """
-    number_emails = options[0]
+    number_emails = int(options[0])
 
     m = imaplib.IMAP4_SSL('imap.gmail.com')
     m.login(username, password)
@@ -33,8 +33,8 @@ def get_mails(options):
 
     mail_ids = items[0].split()
 
-    if len(mail_ids) > int(number_emails):
-        mail_ids = number_emails
+    if len(mail_ids) > number_emails:
+        mail_ids = mail_ids[len(mail_ids) - number_emails:]
 
     result = []
 
