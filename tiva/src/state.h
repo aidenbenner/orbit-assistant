@@ -81,6 +81,6 @@ void refresh_user (void);
 void refresh_date (void);
 void refresh_weather (void);
 void refresh_all (void);
-void send_email (char * to, char * body);
+void send_email (char * to, char * subject,  char * body);
 
 #endif

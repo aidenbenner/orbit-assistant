@@ -300,10 +300,12 @@ Inbox * update_inbox (Inbox *inbox)
   return inbox;
 }
 
-void send_email (char * to, char * body)
+void send_email (char *to, char *subject, char *body)
 {
   Serial.print("SEND_MAIL:");
   Serial.print(to);
+  Serial.print(":");
+  Serial.print(subject);
   Serial.print(":");
   Serial.println(body);
 }

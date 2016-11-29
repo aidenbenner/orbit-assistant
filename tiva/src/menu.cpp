@@ -237,7 +237,10 @@ void reply_message(int selection, Mail * message)
   display_user_prompt("Enter a reply ");
   char reply_buffer[1000]; 
   while(tog == read_switch(0) && selection == get_menu_selection()){
-    send_email ("aiden.benner@gmail.com", get_user_input()); 
+    char subject[100];  
+    strcpy(subject, "re:"); 
+    strcat(subject, message.subject); 
+    send_email (message.from, subject, get_user_input()); 
   }
 }
 
