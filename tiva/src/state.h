@@ -64,7 +64,7 @@ extern Date *g_date;
 extern Weather *g_weather;
 extern Reddit *g_reddit;
 
-User * update_user (User *user);
+User * update_user (User *user, char *prop, char *value);
 Date * update_date (Date *date);
 Weather * update_weather (Weather *weather);
 Reddit * update_reddit (Reddit *reddit);
