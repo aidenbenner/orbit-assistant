@@ -21,7 +21,7 @@ def trim_body(body):
 def get_mails(options):
     """
     options:
-        - number of emails to get
+        - max number of emails to get
     """
     number_emails = options[0]
 
@@ -48,7 +48,8 @@ def get_mails(options):
         body = mail.get_body(preferencelist=('plain'))
         body = trim_body(body.as_string())
 
-        result.append({'sender': sender, 'subject': subject, 'body': body})
+        result.append({'sender': sender, 'subject': subject, 'body': body,
+                       'to': username})
 
     m.close()
     m.logout()
