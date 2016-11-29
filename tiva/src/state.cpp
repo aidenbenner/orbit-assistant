@@ -177,8 +177,7 @@ Subreddit * update_subreddit (Subreddit *subreddit, char *name)
   subreddit = (Subreddit *) malloc (sizeof (Subreddit));
   subreddit->posts = (Post *) malloc (sizeof (Post) * NUM_POSTS);
   subreddit->number = NUM_POSTS;
-  subreddit->name = (char *)malloc(20 * sizeof(char));
-  strcpy(subreddit->name, name);
+  subreddit->name = strdup (name);
 
   char **titles = get_values ("title", buffer, jb, 2);
   char **texts = get_values ("text", buffer, jb, 2);
@@ -190,6 +189,8 @@ Subreddit * update_subreddit (Subreddit *subreddit, char *name)
   }
 
   delete_json_buffer (jb);
+  free (titles);
+  free (texts);
   free (buffer);
 
   return subreddit;
