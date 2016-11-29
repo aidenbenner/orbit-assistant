@@ -270,12 +270,14 @@ Inbox * update_inbox (Inbox *inbox)
 
   inbox = (Inbox *) malloc (sizeof (Inbox));
 
-  char **froms = get_values ("from", buffer, jb, 3);
-  char **subjects = get_values ("subject", buffer, jb, 3);
-  char **bodies = get_values ("body", buffer, jb, 3);
-  char **tos = get_values ("to", buffer, jb, 3);
+  char **froms = get_values ("from", buffer, jb, 4);
+  char **subjects = get_values ("subject", buffer, jb, 4);
+  char **bodies = get_values ("body", buffer, jb, 4);
+  char **tos = get_values ("to", buffer, jb, 4);
 
   int len = jb->t[0].size;
+
+  Serial.println(len);
   inbox->number = len;
 
   for (int i = 0; i < len; i ++)
