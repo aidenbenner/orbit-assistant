@@ -239,8 +239,8 @@ void reply_message(int selection, Mail * message)
   while(tog == read_switch(0) && selection == get_menu_selection()){
     char subject[100];  
     strcpy(subject, "re:"); 
-    strcat(subject, message.subject); 
-    send_email (message.from, subject, get_user_input()); 
+    strcat(subject, message->subject); 
+    send_email (message->from, subject, get_user_input()); 
   }
 }
 
