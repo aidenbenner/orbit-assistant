@@ -8,7 +8,7 @@
 
 static const int NUM_POSTS = 5;
 static const int NUM_SUBREDDITS = 3;
-static char *SUBREDDITS[] = { "worldnews", "jokes", "quotes" };
+static char *SUBREDDITS[] = { "worldnews", "jokes", "todayilearned" };
 
 User *g_user;
 Date *g_date;
@@ -17,7 +17,7 @@ Reddit *g_reddit;
 
 void refresh_user (void)
 {
-  g_user = update_user (g_user);
+  g_user = update_user (g_user, (char *) NULL, (char *) NULL);
 }
 
 void refresh_date (void)
@@ -44,7 +44,15 @@ void refresh_all (void)
   refresh_reddit ();
 }
 
-User * update_user (User *user)
+/**
+ * @param prop -> eg. "name"
+ * @param value -> eg. "Aiden"
+ *
+ * if param and property are NULL, we do GET_INFO:NULL
+ * else, we do SET_INFO:$(prop):$(value)
+ *
+ */
+User * update_user (User *user, char *prop, char *value)
 {
   if (user != NULL)
   {
@@ -54,7 +62,16 @@ User * update_user (User *user)
     free (user);
   }
 
-  Serial.println ("GET_INFO:NULL");
+  if (prop == NULL || value == NULL)
+    Serial.println ("GET_INFO:NULL");
+  else
+  {
+    Serial.print ("SET_INFO:");
+    Serial.print (prop);
+    Serial.print (":");
+    Serial.println (value);
+  }
+
   char *buffer = serial_readline ();
 
   json_buffer *jb = parse_json (buffer);
@@ -67,7 +84,7 @@ User * update_user (User *user)
   delete_json_buffer (jb);
   free (buffer);
 
-  return user;
+  return user; 
 }
 
 Date * update_date (Date *date)

@@ -40,7 +40,6 @@ static const int MARQUEE_DELAY = 500; //ms
 static const int NUM_MENUS = 4; 
 
 //local variables
-static char user_name[] = "Lawrence";
 static char time_buffer[CHARS_PER_LINE]; 
 static char date_buffer[CHARS_PER_LINE]; 
 static long last_menu_switch_time = millis();
@@ -103,7 +102,9 @@ void menu_refresh ()
 void get_user_name ()
 {
   display_user_prompt ("Please enter your name"); 
-  strcpy(user_name, get_user_input());
+  char name[30]; 
+  strcpy(name, get_user_input());
+  g_user = update_user (g_user, "name", name);
 }
 
 void update_time () 
@@ -222,7 +223,7 @@ void intro_page_tick (int selection)
 
     //print name
     orbit_moveto_line (3 - scroll);
-    orbit_display_centered_string (user_name);
+    orbit_display_centered_string (g_user->name);
     if(scroll == 1){
       fill_date_buffer (); 
       orbit_moveto_line (4 - scroll);
