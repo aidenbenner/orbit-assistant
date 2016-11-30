@@ -2,7 +2,7 @@
  * Serial helpers
  */
 #include <Energia.h>
-#include <string.h> 
+#include <string.h>
 #include <stdlib.h>
 #include "serial.h"
 #include "utils.h"
@@ -42,9 +42,9 @@ char * serial_readline (void)
     }
   }
 
-/**  int len = strlen(buffer); 
-  char *out_string = (char *) malloc(sizeof (char) * len); 
-  strcpy(out_string, buffer); 
+/**  int len = strlen(buffer);
+  char *out_string = (char *) malloc(sizeof (char) * len);
+  strcpy(out_string, buffer);
   free(buffer);  **/
 
   return buffer;
