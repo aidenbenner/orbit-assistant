@@ -4,6 +4,8 @@
 #include "Wire_Util.h"
 
 /**
+ * borrowed from SE101 demo project 1 written by Rollen 
+ *
  * You need to use your own Instance of the TwoWire Object (instead of the standard `Wire`)
  * because they communicate over the wrong pins!
  */

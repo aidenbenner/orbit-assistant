@@ -173,7 +173,6 @@ void flash_led (int port, int del)
   delay(del);
 }
 
-
 void print_sensor_test ()
 {
   OrbitOledClear();

@@ -106,9 +106,9 @@ void oled_draw_multiline_string(char * input, int current_line)
 {
   int len = strlen(input);
   int num_input_lines = len / CHARS_PER_LINE + 1;
+
   //drawing current_line, n + 1 , n + 2
   //see what lines overlap with start_line
-
   for(int i = current_line; i<=3; i++)
   {
     if(i < 1) continue;

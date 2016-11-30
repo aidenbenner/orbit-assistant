@@ -16,12 +16,9 @@ void device_init ()
   g_device_init_time = millis(); 
 
   serial_init ();
-  WireInit ();
   oled_init ();
-  accel_init ();
   init_sensors (); 
   refresh_all ();
-  menu_init (); 
 
   led_left_right (255, true);
   led_left_right (255, false);

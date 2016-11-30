@@ -36,35 +36,28 @@ extern const double CHAR_HEIGHT;
 extern const double CHAR_WIDTH; 
 
 //constants
+const int NUM_MAIL_MESSAGES = 5; 
+
+//static constants
 static const int MARQUEE_DELAY = 500; //ms
 static const int NUM_MENUS = 4; 
 
-//local variables
+//static variables
+static int curr_menu = 0; 
+static int NUM_UNREAD_MAIL = 5; 
 static char time_buffer[CHARS_PER_LINE]; 
 static char date_buffer[CHARS_PER_LINE]; 
 static long last_menu_switch_time = millis();
-static int curr_menu = 0; 
-
+static long last_pot_move_time = millis(); 
+static long top_bar_time_thresh = 800; 
 static long last_page_action_time = millis(); 
+static double last_pot_val = 0; 
 
 
-//will need to dynamically allocate this so we can have more messages
-int NUM_UNREAD_MAIL = 5; 
-const int NUM_MAIL_MESSAGES = 5; 
-
-void menu_init ()
-{
-  //update the data from pi  
-  menu_refresh ();
-}
-
-void menu_refresh () 
-{
-  //regrab data from the pi 
-  //serial_update_weather (); 
-  //serial_update_date (); 
-}
-
+/**
+ * Prompts and gets the username from the user through the Oled 
+ * Updates g_user with the new name 
+ **/
 void get_user_name ()
 {
   display_user_prompt ("Please enter your name"); 
@@ -73,6 +66,10 @@ void get_user_name ()
   g_user = update_user (g_user, "name", name);
 }
 
+/**
+ * updates the values of g_date using the difference between the
+ * current clock time and the initial clock time 
+ **/ 
 void update_time () 
 {
   Date * curr_date = g_date;
@@ -93,6 +90,9 @@ void update_time ()
   //TODO months + years 
 }
 
+/**
+ * Gets the currently selected menu using the potentionmeter
+ **/ 
 int get_menu_selection () 
 {
   double pot = read_pot_percent(); 
@@ -101,6 +101,9 @@ int get_menu_selection ()
   return out;
 }
 
+/**
+ * Converts g_date into a string and reads it into the time_buffer static varibale
+ **/ 
 void fill_time_buffer () 
 {
   Date * curr_date = g_date;
@@ -119,6 +122,9 @@ void fill_time_buffer ()
   }
 }
 
+/** 
+ * Reads the g_date global into the static variable date_buffer
+ **/ 
 void fill_date_buffer () 
 {
   struct Date * curr_date = g_date;
@@ -140,7 +146,10 @@ void fill_date_buffer ()
   date_buffer[10] = 0; 
 }
 
-//returns if the user clicks up or down to click
+/**
+ * returns 1 if the user clicks up after the input_time_thresh
+ * returns -1 if the user clicks down after the input_time_thresh
+ **/ 
 int get_page_action (int curr, int max)
 {
   if(read_button(1))
@@ -162,6 +171,10 @@ int get_page_action (int curr, int max)
   return curr; 
 }
 
+/**
+ * code that runs when the user is on the intro page
+ * displays the user's name, time, and date
+ **/ 
 void intro_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
@@ -202,6 +215,11 @@ void intro_page_tick (int selection)
   }
 }
 
+/**
+ * Code that runs when user selects a reddit post from the news page
+ * Allows the user to scroll up and down to read the post
+ * and displays it in a paginated form 
+ **/ 
 void view_news_page (int selection, Post article) 
 {
   int tog = read_switch(0); 
@@ -231,6 +249,9 @@ void view_news_page (int selection, Post article)
   }
 }
 
+/**
+ * Prompt the user to enter an email reply and send it 
+ **/ 
 void reply_message(int selection, Mail * message) 
 {
   int tog = read_switch(0); 
@@ -313,6 +334,10 @@ void view_mail_message (int selection, Mail * message)
   }
 }
 
+/**
+ * Code that runs when user is on the News/Reddit page 
+ * displays several different subreddits and allows the user to toggle between them 
+ **/ 
 void news_page_tick (int selection) 
 {
   int init_selection = get_menu_selection();
@@ -399,11 +424,11 @@ void news_page_tick (int selection)
   }
 }
 
-long last_pot_move_time = millis(); 
-double last_pot_val = read_pot_percent(); 
-long top_bar_time_thresh = 800; 
-long last_mail_check_time = millis(); 
-int const mail_check_interval = 10000; 
+/**
+ * this code is called on every screen to continuously update the 
+ * indicator leds and also the top progress bar whenever the user
+ * moves the pot
+ **/ 
 void menu_tick () 
 {
   if(fabs(last_pot_val - read_pot_percent()) > 0.01){
@@ -417,16 +442,6 @@ void menu_tick ()
   else{
     led_gradient(3000,0);
   }
-  /**
-  if(last_mail_check_time + mail_check_interval < millis())
-  {
-    last_mail_check_time = millis();
-    if(check_if_new_mail())
-    {
-      //led_left_right (255, true);
-      //led_left_right (255, false);
-    }
-  } **/ 
 }
 
 
@@ -441,8 +456,7 @@ void weather_page_tick (int selection)
   long init_delay= 700; 
   int tmp_size = 20;
   char temp[tmp_size]; 
-  //need to convert our weather struct into a printable string
-  int page = 0; 
+  //need to convert our weather struct into a printable string int page = 0; 
   int page_max = 5; 
   int line_select = 1; 
   char second_line[30]; 
@@ -461,7 +475,7 @@ void weather_page_tick (int selection)
   char pressure_str[30]; 
   strcpy (pressure_str, "Pressure "); 
   strcat (pressure_str, g_weather->pressure); 
-  strcat (pressure_str, "Pa"); 
+  strcat (pressure_str, "mT"); 
 
   while(selection == get_menu_selection()){
     OrbitOledClearBuffer ();
@@ -518,7 +532,12 @@ void weather_page_tick (int selection)
   }  
 }
 
-
+/**
+ * code that runs when the user selects the mail page
+ * shows the current number of unread messages
+ * and lists each message allowing the user to scroll up and down
+ * read and respond to message
+ **/ 
 void mail_page_tick(int selection) 
 {
   int init_selection = get_menu_selection();
@@ -606,6 +625,9 @@ void mail_page_tick(int selection)
   }
 }
 
+/**
+ * handles switching between the different screens
+ **/ 
 void display_menu ()
 {
   switch(curr_menu)
@@ -629,42 +651,3 @@ void display_menu ()
   curr_menu = get_menu_selection();
 } 
 
-/**
-void debug_display_long_string_with_pot () 
-{
-  char * input = test_string;
-
-  int length = strlen(input);
-  int num_lines = length / CHARS_PER_LINE;
-
-  while(true)
-  { 
-    double percent_pot = read_pot_percent ();
-    Serial.print (" POT PERCENT | ");
-    Serial.print (percent_pot );
-    Serial.print (" PURE ANALOG ");
-    Serial.print (read_pot());
-    int offset = fmod(percent_pot * num_lines * CHAR_HEIGHT, CHAR_HEIGHT);
-    Serial.print (" OFFSET | ");
-    Serial.print(offset);
-    int min_vis_line = round(percent_pot * num_lines);
-    Serial.print (" MIN_VS | ");
-    Serial.println(min_vis_line);
-    //need to find which three lines are visible 
-    OrbitOledClear (); 
-    send_line_to_buffer (input,min_vis_line);
-    OrbitOledMoveTo (LINE_1_X,LINE_1_Y  - offset);
-    OrbitOledDrawString (line_buffer);
-
-    send_line_to_buffer (input,min_vis_line + 1);
-    OrbitOledMoveTo (LINE_2_X,LINE_2_Y - offset);
-    OrbitOledDrawString (line_buffer);
-
-    send_line_to_buffer (input,min_vis_line + 2);
-    OrbitOledMoveTo (LINE_3_X,LINE_3_Y - offset);
-    OrbitOledDrawString (line_buffer);
-    OrbitOledUpdate ();
-    delay(50);
-    //next line
-  }  
-} **/ 
