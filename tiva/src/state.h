@@ -1,5 +1,4 @@
-#ifndef STATE_H
-#define STATE_H
+
 
 typedef struct User {
   char *name;
@@ -81,6 +80,7 @@ void refresh_user (void);
 void refresh_date (void);
 void refresh_weather (void);
 void refresh_all (void);
+void refresh_inbox (void);
 void send_email (char * to, char * subject,  char * body);
 bool check_if_new_mail ();
 

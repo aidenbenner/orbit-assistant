@@ -1,5 +1,4 @@
-#include <Energia.h>
-#include <Arduino.h>
+
 #include <OrbitOledChar.h>
 #include <OrbitOledGrph.h>
 #include <OrbitOled.h>
@@ -550,6 +549,7 @@ void mail_page_tick(int selection)
   int page = 0 ;
   int page_max = NUM_MAIL_MESSAGES;
   int init_toggle = read_switch(0);
+  int init_toggle2 = read_switch(1); 
   while(selection == get_menu_selection())
   {
     OrbitOledClearBuffer ();
@@ -591,6 +591,11 @@ void mail_page_tick(int selection)
       view_mail_message (selection, g_inbox->mails[page + line_select - 2]);
       g_inbox->mails[page + line_select - 2]->read = true;
       NUM_UNREAD_MAIL--;
+    }
+    if(init_toggle2 != read_switch(1))
+    {
+      init_toggle2 = read_switch(1); 
+      refresh_inbox(); 
     }
     int new_line_select = get_page_action (line_select, 4);
     if(new_line_select != line_select)
