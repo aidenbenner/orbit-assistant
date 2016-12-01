@@ -1,36 +1,40 @@
-# c3po  
+# c3po
+Portatble personal assitant based on Ti Tiva board.
 
-By Aiden Benner and Lawrence Pan
+## Features
+* Display current time
+* Display current weather depending on your location
+* Reddit client
+* Email client (read and reply to emails)
+* Virtual keyboard
+* Personal setting
 
-## Developer setup
+## How does it work?
+1. Two components: Raspberry PI and Ti Tiva.
+2. A Python server that runs on the Raspberry PI listens to the Serial port
+3. Ti Tiva prints `events` to Serial to request for information. eg. `GET_WEATHER:CA:Waterloo`
+4. The Python server extracts the `event_name` and the `options`.
+5. Depending on the two parameters mentioned above, the server does a certain series of operations.
+6. If it is a `GET` event, python server will fetch data from the internet then send it back to Ti Tiva as a JSON string.
+7. If it is an event with side effects (eg. `SET_NAME`, `SEND_MAIL`), the python server will simply return a status code.
 
-```bash
-$ # clone this repo
-$ git clone https://github.com/aidenbenner/spy-hunter
-$ # Install vim from your package manager
-$ sudo apt-get install vim
-$ # Install platformIO CLI
-$ sudo pip install -U platformio
-$ # Init project & install the OLED driver
-$ cd spy-hunter
-$ ./init.sh
-$ # To upload your code to the board, do
-$ platformio run
-```
+### State management
+* Inspired by the [redux](http://redux.js.org/) library.
+* Single source of truth, read-only state
+* See `state.cpp`
 
-## Style
+## Possible improvements
+* Support asynchronous operations
+  - Unfortunately, the board we are using does not support [multi-threading](http://energia.nu/guide/multitasking/). However, if we have a more powerful board, here is what we will do.
+  - We supply an unique ID to the event we dispatch from Ti Tiva and then add the ID to a vector. eg. `GET_WEATHER:1fe3:CA:WATERLOO`
+  - We dispatch a python `asyncio coroutine` to fetch the information
+  - When we send the JSON string back to the Ti Tiva, we supply the `ID` as one of the fields.
+  - On Ti Tiva, we have one thread constantly polling on the serial.
+  - When it receives JSON, depending on the ID, we update the corresponding state variable (eg. `g_weather`)
 
-##### Code formatting
+## Challenges we ran into
+* Parsing JSON
+  - Hydrating JSON string on an embedded device is a little harder than just `JSON.parse` in JavaScript
+* Working with the OLED library
 
-* 2 space indentation
-* space before brackets before all function calls and definitions before ifs and for loops
-* curly brace on new line
-
-##### Naming
-
-* structs - camel case
-* everything else - underscores
-* functions - verbs
-* variables - nouns
-
-## Design
+By Aiden Benner and [Lawrence Pan](http://lpan.io)
