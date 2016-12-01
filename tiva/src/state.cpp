@@ -1,5 +1,3 @@
-#include <Arduino.h>
-#include <Energia.h>
 #include <stdlib.h>
 #include <string.h>
 #include "serial.h"
@@ -281,12 +279,12 @@ Inbox * update_inbox (Inbox *inbox)
 
   for (int i = 0; i < len; i ++)
   {
-    inbox->mails[i] = (Mail *) malloc (sizeof (Mail));
-    inbox->mails[i]->from = froms[i];
-    inbox->mails[i]->subject = subjects[i];
-    inbox->mails[i]->body = bodies[i];
-    inbox->mails[i]->to = tos[i];
-    inbox->mails[i]->read = false;
+    inbox->mails[len - 1 - i] = (Mail *) malloc (sizeof (Mail));
+    inbox->mails[len - 1 - i]->from = froms[i];
+    inbox->mails[len - 1 - i]->subject = subjects[i];
+    inbox->mails[len - 1 - i]->body = bodies[i];
+    inbox->mails[len - 1 - i]->to = tos[i];
+    inbox->mails[len - 1 - i]->read = false;
   }
 
   delete_json_buffer (jb);
