@@ -1,5 +1,6 @@
 # c3po
-Portatble personal assitant based on Ti Tiva board.
+##By Aiden Benner and [Lawrence Pan](http://lpan.io)
+A portable personal assistance built using the TI Tiva and Orbit Booster Pack. Made for our SE101 final project.  
 
 ## Features
 * Display current time
@@ -7,7 +8,7 @@ Portatble personal assitant based on Ti Tiva board.
 * Reddit client
 * Email client (read and reply to emails)
 * Virtual keyboard
-* Personal setting
+* Personal settings
 
 ## How does it work?
 1. Two components: Raspberry PI and Ti Tiva.
@@ -36,5 +37,3 @@ Portatble personal assitant based on Ti Tiva board.
 * Parsing JSON
   - Hydrating JSON string on an embedded device is a little harder than just `JSON.parse` in JavaScript
 * Working with the OLED library
-
-By Aiden Benner and [Lawrence Pan](http://lpan.io)
