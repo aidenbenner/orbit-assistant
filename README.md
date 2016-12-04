@@ -1,5 +1,6 @@
 # c3po
-##By Aiden Benner and [Lawrence Pan](http://lpan.io)
+By Aiden Benner and [Lawrence Pan](http://lpan.io)
+
 A portable personal assistance built using the TI Tiva and Orbit Booster Pack. Made for our SE101 final project.  
 
 ## Features
