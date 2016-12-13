@@ -1,4 +1,4 @@
-# c3po
+# orbit assistant
 A portable personal assistance built using the TI Tiva and Orbit Booster Pack. Made for our SE101 final project.  
 
 By Aiden Benner and [Lawrence Pan](http://lpan.io)
